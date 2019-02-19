@@ -1,0 +1,15 @@
+{
+  "name": "scanner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "scan.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "noble-mac": "https://github.com/Timeular/noble-mac.git",
+    "request": "*"
+  }
+}
