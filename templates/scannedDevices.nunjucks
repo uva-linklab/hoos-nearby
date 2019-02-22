@@ -8,43 +8,33 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
+    <link rel="stylesheet" href="css/starter-template.css">
+
     <title>Hoos Nearby?</title>
-
-    <style type="text/css">
-		html,
-		body {
-		    height: 100%;
-		}
-
-		.container {
-		    height: 100%;
-		    display: flex;
-		    justify-content: center;
-		    align-items: center;
-		}
-  	</style>
   </head>
   <body>
-	    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-	  <a class="navbar-brand" href="#">Hoos Nearby?</a>
-	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-	    <span class="navbar-toggler-icon"></span>
-	  </button>
+	<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+		<a class="navbar-brand" href="#">Hoos Nearby?</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+	  	</button>
 	</nav>
-
-	<main role="main" class="container">
-	  <div class="col-md-2">
-	  	<h2>Devices</h2>
-	  </div>	
-	  <div class="col-md-8">
-	  		<ul>
-			   {% for id, ip in entries %}
-			      <li>{{ id }} [{{ ip }}]</li>
-			   {% endfor %}
-			</ul>
-	  </div>
-
-	</main><!-- /.container -->
+    <main role="main" class="container">
+      <div class="starter-template">
+        <div class="row">
+          <div class="col">
+            <h2>Devices</h2>    
+          </div>
+        </div>
+        {% for id, ip in entries %}
+        <div class="row">
+			<div class="col">
+				{{ id }} [{{ ip }}]
+			</div>
+		</div>
+		{% endfor %}
+      </div>
+    </main>
 
 	<!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
