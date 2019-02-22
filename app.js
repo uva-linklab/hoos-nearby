@@ -2,13 +2,16 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const routes = require('./routes/routes');
 const path = require('path');
+const nunjucks = require('nunjucks');
 //init app
 const app = express();
 
-//view engine
-app.set('views', path.join(__dirname), 'views');
-// app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
-// app.set('view engine', 'handlebars');
+//nunjucks
+const PATH_TO_TEMPLATES = './templates';
+nunjucks.configure(PATH_TO_TEMPLATES, {
+    autoescape: true,
+    express: app
+});
 
 //body parser 
 app.use(bodyParser.json());
@@ -18,8 +21,6 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-// app.use('/users', users);
-
 
 const port = (process.env.PORT || 4000);
 app.set('port', port);

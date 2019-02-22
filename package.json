@@ -9,8 +9,8 @@
   "author": "Nabeel Nasir",
   "license": "ISC",
   "dependencies": {
-    "noble-mac": "https://github.com/Timeular/noble-mac.git",
     "express": "*",
-    "express-handlebars": "*"
+    "noble-mac": "https://github.com/Timeular/noble-mac.git",
+    "nunjucks": "^3.1.7"
   }
 }
