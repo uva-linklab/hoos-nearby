@@ -10,6 +10,22 @@
 
     <link rel="stylesheet" href="css/starter-template.css">
 
+    <style type="text/css">
+    	body {
+		  padding-top: 5rem;
+		}
+		.starter-template {
+		  padding: 3rem 1.5rem;
+		  text-align: center;
+		}
+		.my-row {
+	       border: 3px solid yellow;
+		}
+		.my-col {
+			border: 3px dotted blue; 
+		}
+    </style>
+
     <title>Hoos Nearby?</title>
   </head>
   <body>
@@ -20,37 +36,38 @@
 	  	</button>
 	</nav>
     <main role="main" class="container">
-      <div class="starter-template">
-      	<div class="row">
-      		<div class="col">
-      			<h1>Gateway Network</h1>
-      		</div>
-      	</div>
-      	<div class="row mt-5"></div>
-        <div class="row">
-          <div class="col">
-            <h3>Gateways</h3>
-            {% for id, ip in all_gateways %}
-				<a target="_blank" href="gateway/{{ id }}">{{ id }}</a><br/>
-            {% endfor %}
-          </div>
-          <div class="col">
-            <h3>Gateways in range</h3>
-            {% for id, ip in discovered_gateways %}
-				<a target="_blank" href="gateway/{{ id }}">{{ id }}</a><br/>
-            {% endfor %}
-          </div>
-        </div>
-        
-        <div class="row mt-5"></div>
-		
-		<!-- TODO: Handle the linkGraphUrl empty case-->
-      	<div class="row">
-			<div class="col">
-				<h3><a target="_blank" href="{{ linkGraphUrl }}">Link Graph</a></h3>
+		<div class="starter-template">
+			<div class="row">
+				<div class="col">
+					<h2>Gateway</h2>
+					MAC Address = {{ mac_address }}<br/>
+					IP Address = {{ ip_address }}<br/>
+				</div>
 			</div>
+			
+			<div class="row mt-5"></div>
+			
+			<div class="row">
+				<div class="col-3">
+					<h3>APIs</h3>
+					{% for app in apps %}
+						<a target="_blank" href="http://{{ ip_address }}:5000/execute/{{ app["app_id"] }}">{{ app["app_name"] }}</a><br/>
+					{% endfor %}
+				</div>
+				<div class="col-6">
+					<h3>Sensors</h3>
+					{% for sensor in sensors %}
+						{{ sensor["device"] }} - {{ sensor["_id"] }} - {{ sensor["receiver"] }}<br/>
+					{% endfor %}
+				</div>
+				<div class="col-3">
+					<h3>Neighbors</h3>
+					{% for neighbor in neighbors %}
+						{{ neighbor["_id"] }}<br/>	
+					{% endfor %}
+				</div>
+			</div>			
 		</div>
-      </div>   
     </main>
 
 	<!-- Optional JavaScript -->

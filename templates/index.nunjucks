@@ -33,13 +33,9 @@
 	</nav>
 
 	<main role="main" class="container">
-
-	  <div class="container">
 	    <form action="scan">
-		  <input type="submit" value="Scan for Devices" />
+		  <input type="submit" value="Scan for Gateway Network" />
 		</form>
-	  </div>
-
 	</main><!-- /.container -->
 
 	<!-- Optional JavaScript -->
