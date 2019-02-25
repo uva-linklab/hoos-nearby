@@ -34,7 +34,7 @@
 
 	<main role="main" class="container">
 	    <form action="scan">
-		  <input type="submit" value="Scan for Gateway Network" />
+		  <input type="submit" value="Search for Gateway Networks" />
 		</form>
 	</main><!-- /.container -->
 

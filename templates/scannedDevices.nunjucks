@@ -27,6 +27,13 @@
       		</div>
       	</div>
       	<div class="row mt-5"></div>
+      	<!-- TODO: Handle the linkGraphUrl empty case-->
+      	<div class="row">
+			<div class="col">
+				<h3><a target="_blank" href="{{ linkGraphUrl }}">Link Graph</a></h3>
+			</div>
+		</div>
+		<div class="row mt-5"></div>
         <div class="row">
           <div class="col">
             <h3>Gateways</h3>
@@ -41,15 +48,7 @@
             {% endfor %}
           </div>
         </div>
-        
-        <div class="row mt-5"></div>
 		
-		<!-- TODO: Handle the linkGraphUrl empty case-->
-      	<div class="row">
-			<div class="col">
-				<h3><a target="_blank" href="{{ linkGraphUrl }}">Link Graph</a></h3>
-			</div>
-		</div>
       </div>   
     </main>
 

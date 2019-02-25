@@ -116,6 +116,10 @@ async function getGatewayDetails(req, res){
 
 	//get all attached sensors
 	const sensors = await getAppResponse(ipAddress, "sensorDiscovery");
+	sensors.forEach(sensor => {
+		const receiver = sensor["receiver"];
+		sensor["receiver"] = receiver.split("-")[0];
+	});
 
 	//get all neighbors
 	const neighbors = await getAppResponse(ipAddress, "partialLinkGraph");
