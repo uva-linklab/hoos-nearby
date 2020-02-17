@@ -7,7 +7,7 @@ var fs = require('fs');
 var noble = require("noble-mac");
 const utils = require("./utils/utils");
 const path = require('path');
-const aes_crypto = require("./aes_crypto");
+const aes_crypto = require("./aes-crypto");
 
 const params_file = "params.json";
 

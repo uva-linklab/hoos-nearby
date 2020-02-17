@@ -1,5 +1,7 @@
-scanner/params.json
 test-code
 node_modules/
 logs/
 utils/config
+.idea/
+gateway-scanner/params.json
+package-lock.json

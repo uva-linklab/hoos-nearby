@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const Scanner = require('../scanner/scanner');
+const Scanner = require('../gateway-scanner/scanner');
 const request = require('request-promise');
 const { spawn } = require('child_process');
 const path = require('path');
