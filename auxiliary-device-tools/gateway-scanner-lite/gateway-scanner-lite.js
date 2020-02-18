@@ -5,7 +5,7 @@ var util = require('util');
 var request = require("request");
 var fs = require('fs');
 var noble = require("noble-mac");
-const utils = require("./utils/utils");
+const utils = require("./utils");
 const path = require('path');
 const aes_crypto = require("./aes-crypto");
 
@@ -14,7 +14,7 @@ const params_file = "params.json";
 var nobleInitialized = false;
 
 var self;
-class Scanner extends EventEmitter {
+class GatewayScannerLite extends EventEmitter {
 	initialize(url, timeout) {
 		console.log(__dirname);
 		console.log(noble._state);
@@ -163,4 +163,4 @@ class Scanner extends EventEmitter {
 	}
 };
 
-module.exports = Scanner;
+module.exports = GatewayScannerLite;

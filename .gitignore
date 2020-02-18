@@ -3,5 +3,4 @@ node_modules/
 logs/
 utils/config
 .idea/
-gateway-scanner/params.json
 package-lock.json

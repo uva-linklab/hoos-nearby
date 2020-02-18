@@ -1,0 +1,20 @@
+{
+  "name": "auxiliary-device-webapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nabeel Nasir",
+  "license": "ISC",
+  "dependencies": {
+    "express": "*",
+    "body-parser": "latest",
+    "nunjucks": "^3.1.7",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "keyv": "^3.1.0",
+    "@keyv/mongo": "^1.1.0"
+  }
+}
