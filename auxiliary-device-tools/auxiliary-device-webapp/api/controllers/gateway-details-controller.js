@@ -56,16 +56,12 @@ exports.getScanResults = async function (req, res) {
             for (const entry of Object.entries(linkGraph["data"])) {
                 const gatewayId = entry[0];
                 const gatewayIP = entry[1]["ip"];
-                allGatewaysMap[gatewayId] = encodeToBase64(gatewayIP);
+                allGatewaysMap[gatewayId] = gatewayIP;
 
                 //fill in the missing gatewayId field for the discovered gateways
                 if (gatewaysInRange.includes(gatewayIP)) {
-                    gatewaysInRangeMap[gatewayId] = encodeToBase64(gatewayIP);
+                    gatewaysInRangeMap[gatewayId] = gatewayIP;
                 }
-
-                //TODO why??
-                //keep the mac and ip address mappings for future requests
-                await keyv.set(gatewayId, gatewayIP);
             }
         }
 

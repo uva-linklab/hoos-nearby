@@ -40,7 +40,7 @@
 			<div class="row">
 				<div class="col">
 					<h2>Gateway</h2>
-					id = {{ gatewayId }}<br/>
+					ID = {{ gatewayId }}<br/>
 					IP Address = {{ gatewayIP }}<br/>
 				</div>
 			</div>
@@ -54,7 +54,7 @@
 						{{ sensor["device"] }} ({{ sensor["_id"] }}, {{ sensor["receiver"] }})<br/>
 					{% endfor %}
 				</div>
-				<div class="col-3">
+				<div class="col-6">
 					<h3>Neighbors</h3>
 					{% for neighbor in neighbors %}
 						{{ neighbor["_id"] }}<br/>	
