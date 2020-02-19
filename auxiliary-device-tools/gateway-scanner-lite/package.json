@@ -9,7 +9,6 @@
   "author": "Nabeel Nasir",
   "license": "ISC",
   "dependencies": {
-    "@abandonware/noble": "^1.9.2-5",
-    "request": "*"
+    "@abandonware/noble": "^1.9.2-5"
   }
 }

@@ -55,7 +55,7 @@ class GatewayScannerLite extends EventEmitter {
             setTimeout(() => {
                 noble.stopScanning();
                 this.emit("scan-complete");
-                process.exit(0);
+                // process.exit(0);
             }, this.timeoutMillis);
         } else {
             noble.stopScanning();
