@@ -9,7 +9,7 @@
   "author": "Nabeel Nasir",
   "license": "ISC",
   "dependencies": {
-    "noble-mac": "https://github.com/Timeular/noble-mac.git",
+    "@abandonware/noble": "^1.9.2-5",
     "request": "*"
   }
 }

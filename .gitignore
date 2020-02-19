@@ -4,3 +4,4 @@ logs/
 utils/config
 .idea/
 package-lock.json
+auxiliary-device-tools/gateway-scanner-lite/group-key.json

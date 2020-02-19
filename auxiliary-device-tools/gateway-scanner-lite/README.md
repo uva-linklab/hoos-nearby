@@ -4,5 +4,32 @@ scan for gateways that are nearby using the group key of the network. The group 
 
 * There are a few differences from the module in the gateway repo:
     1. Uses the noble module for scanning BLE advertisements. Doesn't use bleno for advertising itself.
-    2. The module is written as an EventEmitter which emits a new event when a peripheral is discovered.
-    3. Uses noble-mac since noble does not work for recent OSX versions.
+    2. Performs the gateway scan for a specified amount of time and emits events whenever a new peripheral is 
+    discovered.  
+    3. Uses abandonware/noble-mac, a fork of noble, since noble does not work for recent OSX versions.
+    
+## Setup
+* Add a file named group-key.json which contains the key and IV for the AES-256 CTR encryption used to uniquely identify a gateway group. The same key and IV needs to be used by all gateways in the network. The file is placed in the git ignore list.
+
+    * e.g.:
+    ```json
+    {  
+        "key":"95CFEF1B1F1F5FAAC6954BC1BD713081",
+        "iv":"6F2E2CEE52C1AB42"  
+    }
+    ```
+  
+Usage
+
+```js
+const GatewayScannerLite = require("auxiliary-device-tools/gateway-scanner-lite");
+const scanner = new GatewayScannerLite(3000);
+
+scanner.on("peripheral-discovered", function (device_name, adv) {
+  console.log(`Discovered ${device_name}, ${adv}`);
+});
+
+scanner.on("scan-complete", function () {
+  console.log("scan complete");
+});
+```

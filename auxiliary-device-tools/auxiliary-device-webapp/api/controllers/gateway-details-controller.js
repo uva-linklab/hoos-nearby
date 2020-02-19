@@ -22,15 +22,14 @@ function getMacAddress(ip, all_gateways) {
 exports.getScanResults = async function(req, res) {
     console.log("scan");
 
-    let scanner = new Scanner();
+    const scanner = new GatewayScannerLite(10000);
 
-    scanner.on("rangingkey", function(device_name, adv){
+    scanner.on("peripheral-discovered", function (device_name, adv) {
         console.log(`got ${device_name}, ${adv}`);
         discovered_gateways[device_name] = adv;
     });
 
-    scanner.on(null, handleScanComplete);
-    scanner.initialize("url", 10000);
+    scanner.on("scan-complete", handleScanComplete);
 
     //check if this can be moved outside of getScanResults
     async function handleScanComplete() {
