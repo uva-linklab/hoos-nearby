@@ -92,11 +92,11 @@ getHostGateways(sensorIds).then(mapping => {
 
     //deploy the code using the Gateway API on the target gateway
     const files = {
-        code: scriptPath,
+        app: scriptPath,
         metadata: metadataPath
     };
 
-    const httpFileTransferUri = `http://${targetGatewayIP}:5000/gateway/deploy-code`;
+    const httpFileTransferUri = `http://${targetGatewayIP}:5000/gateway/execute-app`;
 
     httpFileTransfer.transferFiles(httpFileTransferUri,
         files,
