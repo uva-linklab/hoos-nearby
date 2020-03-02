@@ -1,6 +1,5 @@
 const path = require('path');
 const { spawn } = require('child_process');
-const request = require('request-promise');
 
 exports.renderAppDeployPage = async function(req, res){
     //TODO get this from req.
@@ -15,7 +14,7 @@ exports.renderAppDeployPage = async function(req, res){
         const sensors = linkGraphData[gateway]["sensors"];
         const sensorIds = sensors.map(sensorData => {
             return sensorData["_id"];
-        })
+        });
         return sensorIds;
     });
 

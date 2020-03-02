@@ -1,5 +1,5 @@
-const request = require('request-promise');
 const GatewayScanner = require('../../../gateway-scanner-lite');
+const utils = require('utils');
 
 /**
  * Given an ascii string, encodes it to base64 and returns a base64 string
@@ -48,9 +48,9 @@ exports.getScanResults = async function (req, res) {
         //graph from that
         if (gatewaysInRange.length > 0) {
             const sampleIP = gatewaysInRange[0];
-            const linkGraph = await getLinkGraphData(sampleIP);
+            const linkGraph = await utils.getLinkGraphData(sampleIP);
             //record the link to the linkgraph visualization
-            linkGraphVisualUrl = `http://${sampleIP}:5000/platform/link-graph-visual`;
+            linkGraphVisualUrl = utils.getLinkGraphVisualUrl(sampleIP);
 
             //find all the gateways
             for (const entry of Object.entries(linkGraph["data"])) {
@@ -75,39 +75,6 @@ exports.getScanResults = async function (req, res) {
     });
 };
 
-//TODO if there is a repo merge of on-the-edge and hoos-nearby, then all of these should go into utils
-/**
- * Use the platform API to get the link graph data
- * @returns {Promise<any>} promise of the link graph json
- */
-async function getLinkGraphData(gatewayIP) {
-    const execUrl = `http://${gatewayIP}:5000/platform/link-graph-data`;
-    const body = await request({method: 'GET', uri: execUrl});
-    return JSON.parse(body);
-}
-
-/**
- * Uses the gateway API to query for the sensors connected to a given gateway
- * @param gatewayIP IP address of the gateway
- * @returns {Promise<any>}
- */
-async function getSensorData(gatewayIP) {
-    const execUrl = `http://${gatewayIP}:5000/gateway/sensors`;
-    const body = await request({method: 'GET', uri: execUrl});
-    return JSON.parse(body);
-}
-
-/**
- * Uses the gateway API to query for the neighbors of a given gateway
- * @param gatewayIP IP address of the gateway
- * @returns {Promise<any>} promise of a list of list of gateway_name and gateway_IP
- */
-async function getNeighborData(gatewayIP) {
-    const execUrl = `http://${gatewayIP}:5000/gateway/neighbors`;
-    const body = await request({method: 'GET', uri: execUrl});
-    return JSON.parse(body);
-}
-
 exports.getGatewayDetails = async function (req, res) {
     //receive the Base64 encoded GET params from the nunjucks page
     const encodedGatewayId = req.query.id;
@@ -118,14 +85,14 @@ exports.getGatewayDetails = async function (req, res) {
         const gatewayIP = decodeFromBase64(encodedGatewayIP);
 
         //get sensors
-        const sensors = await getSensorData(gatewayIP);
+        const sensors = await utils.getSensorData(gatewayIP);
         sensors.forEach(sensor => {
             const receiver = sensor["receiver"];
             sensor["receiver"] = receiver.split("-")[0];
         });
 
         //get neighbors
-        const neighbors = await getNeighborData(gatewayIP);
+        const neighbors = await utils.getNeighborData(gatewayIP);
 
         const data = {
             "gatewayId": gatewayId,

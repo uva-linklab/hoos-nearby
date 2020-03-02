@@ -1,9 +1,8 @@
-module.exports.getIPAddress = getIPAddress;
-
+const request = require('request-promise');
 const pcap = require('pcap');
 const config = require('./config.json');
 
-function getIPAddress() {
+exports.getIPAddress = function() {
 	const networkInterface = config.network.interface;
 	if(!networkInterface) {
 		console.log("interface not found in config file");
@@ -16,4 +15,40 @@ function getIPAddress() {
 				.addresses
 				.find(addrElem => addrElem && regex.test(addrElem.addr))
 				.addr;
-}
+};
+
+exports.getLinkGraphVisualUrl = function(gatewayIP) {
+	return `http://${gatewayIP}:5000/platform/link-graph-visual`;
+};
+
+/**
+ * Use the platform API to get the link graph data
+ * @returns {Promise<json>} promise of the link graph json
+ */
+exports.getLinkGraphData = async function(gatewayIP) {
+	const execUrl = `http://${gatewayIP}:5000/platform/link-graph-data`;
+	const body = await request({method: 'GET', uri: execUrl});
+	return JSON.parse(body);
+};
+
+/**
+ * Uses the gateway API to query for the sensors connected to a given gateway
+ * @param gatewayIP IP address of the gateway
+ * @returns {Promise<json>}
+ */
+exports.getSensorData = async function (gatewayIP) {
+	const execUrl = `http://${gatewayIP}:5000/gateway/sensors`;
+	const body = await request({method: 'GET', uri: execUrl});
+	return JSON.parse(body);
+};
+
+/**
+ * Uses the gateway API to query for the neighbors of a given gateway
+ * @param gatewayIP IP address of the gateway
+ * @returns {Promise<json>} promise of a list of list of gateway_name and gateway_IP
+ */
+exports.getNeighborData = async function(gatewayIP) {
+	const execUrl = `http://${gatewayIP}:5000/gateway/neighbors`;
+	const body = await request({method: 'GET', uri: execUrl});
+	return JSON.parse(body);
+};
