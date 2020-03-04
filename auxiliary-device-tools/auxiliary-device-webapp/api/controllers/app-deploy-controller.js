@@ -1,80 +1,55 @@
-const path = require('path');
-const { spawn } = require('child_process');
+const utils = require("../../../../utils");
+const appDeployer = require("../../../app-deployer");
 
 exports.renderAppDeployPage = async function(req, res){
-    //TODO get this from req.
-    const sampleIP = "172.27.44.129";
-    //TODO link graph
-    const linkGraph = await getAppResponse(sampleIP, "linkGraph");
+    //receive the Base64 encoded GET params from the nunjucks page
+    const encodedGatewayIP = req.query.ip;
 
-    const linkGraphData = linkGraph["data"];
-    const gateways = Object.keys(linkGraphData);
-    console.log(gateways);
-    const allSensorIds = gateways.map(gateway => {
-        const sensors = linkGraphData[gateway]["sensors"];
-        const sensorIds = sensors.map(sensorData => {
-            return sensorData["_id"];
-        });
-        return sensorIds;
-    });
+    if(encodedGatewayIP) {
+        const gatewayIP = utils.decodeFromBase64(encodedGatewayIP);
 
-    //TODO use better impl. flatMap and flat did not work on node older version
-    // var sensors = [];
-    // for(var sensorList of allSensorIds) {
-    // 	console.log(sensorList);
-    // 	sensors = sensors.concat(sensorList);
-    // 	console.log(sensors);
-    // }
-    const sensorList = allSensorIds.reduce((acc,sensors) => acc.concat(sensors));
-    console.log(sensorList);
-    // const sensors = [
-    // 	"5a28f0f77c0f",
-    // 	"0575f0f77c0f",
-    // 	"f745f0f77c0f",
-    // 	"d075f0f77c0f",
-    // 	"a145f0f77c0f",
-    // 	"b175f0f77c0f",
-    // 	"3d669891df8c",
-    // 	"9c28f0f77c0f",
-    // 	"8fc79891df8c",
-    // 	"3b28f0f77c0f",
-    // 	"1675f0f77c0f"
-    // ];
+        const linkGraph = await utils.getLinkGraphData(gatewayIP);
+        const linkGraphData = linkGraph["data"];
 
-    // console.log(sensors);
-    const data = {
-        "sensors": sensorList
-    };
+        const gateways = Object.keys(linkGraphData);
+        const allSensorIds = gateways.map(gateway =>
+            linkGraphData[gateway]["sensors"].map(sensorData => sensorData["_id"]));
 
-    res.render("code-deploy-page.nunjucks", data)
+        //TODO use better impl. flatMap and flat did not work on node older version
+        //TODO there are duplicate sensors. Remove that.
+        const sensorList = allSensorIds.reduce((acc,sensors) => acc.concat(sensors));
+
+        const data = {
+            /*
+            pass on the gateway IP so that once the form submission happens on the app-deploy-page, the deployApp
+            function can use the gatewayIP to get the link graph of the network
+             */
+            "gatewayIP": gatewayIP,
+            "sensors": sensorList
+        };
+        res.render("app-deploy-page.nunjucks", data);
+    } else {
+        res.sendStatus(404);
+    }
 };
 
 exports.deployApp = async function (req, res) {
-    const deployerPath = path.join(__dirname, "../app-deployer/deployer");
-    console.log(deployerPath);
+    //Get the POST data
+    const appPath = req["files"]["app"][0]["path"]; //path to the app
+    const sensors = req.body.sensors; //list of sensor ids
+    const gatewayIP = req.body.gatewayIP;
 
-    console.log(req.body);
+    //generate the link graph
+    const linkGraph = await utils.getLinkGraphData(gatewayIP);
 
-    //TODO fix this
-    // const codePath = req.body.codepath;
-    const codePath = path.join(__dirname, "../app-deployer/test-code/test.js");
-    const sensors = req.body.sensors;
+    //deploy the app
+    appDeployer.deployApp(appPath, sensors, linkGraph, function(isDeploymentSuccessful) {
+        const deploymentAlertMessage = isDeploymentSuccessful ? "App deployed on gateway network!" :
+            "App deployment failed!";
 
-    const sensorList = sensors.reduce((acc, sensor) => acc + "," + sensor);
-    // console.log(sensorList);
-
-    const codeProcess = spawn('node', [deployerPath, codePath, sensorList]);
-
-    codeProcess.stdout.on('data', (data) => {
-        console.log(data.toString().trim());
+        const data = {
+            "deploymentAlertMessage": deploymentAlertMessage
+        };
+        res.render("deployment-response-page.nunjucks", data);
     });
-
-    codeProcess.stderr.on('data', (data) => {
-        console.error(data.toString());
-    });
-
-    codeProcess.on('exit', (data) => {
-        console.log("script exited");
-    });
-    res.end();
 };

@@ -1,28 +1,8 @@
 const GatewayScanner = require('../../../gateway-scanner-lite');
-const utils = require('utils');
-
-/**
- * Given an ascii string, encodes it to base64 and returns a base64 string
- * @param str
- * @returns {string}
- */
-function encodeToBase64(str) {
-    const buffer = new Buffer(str);
-    return buffer.toString('base64');
-}
-
-/**
- * Given a base64 encoded string, returns its ascii string
- * @param encodedStr
- * @returns {string}
- */
-function decodeFromBase64(encodedStr) {
-    const buffer = new Buffer(encodedStr, 'base64');
-    return buffer.toString('ascii');
-}
+const utils = require('../../../../utils');
 
 exports.getScanResults = async function (req, res) {
-    const gatewayScanner = new GatewayScanner(10000); //gateway scanner which scans for 10 secs
+    const gatewayScanner = new GatewayScanner(5000); //gateway scanner which scans for 10 secs
     const gatewaysInRange = []; //list of ip addresses of the gateways that are in range of the auxiliary device
 
     /*
@@ -49,7 +29,7 @@ exports.getScanResults = async function (req, res) {
         if (gatewaysInRange.length > 0) {
             const sampleIP = gatewaysInRange[0];
             const linkGraph = await utils.getLinkGraphData(sampleIP);
-            //record the link to the linkgraph visualization
+            //record the link to the link graph visualization
             linkGraphVisualUrl = utils.getLinkGraphVisualUrl(sampleIP);
 
             //find all the gateways
@@ -69,7 +49,7 @@ exports.getScanResults = async function (req, res) {
             "gatewaysInRangeMap": gatewaysInRangeMap,
             "allGatewaysMap": allGatewaysMap,
             "linkGraphUrl": linkGraphVisualUrl,
-            "encodeToBase64": encodeToBase64 //send the base64 encode function to nunjucks to encode GET params
+            "encodeToBase64": utils.encodeToBase64 //send the base64 encode function to nunjucks to encode GET params
         };
         res.render('scanned-devices.nunjucks', data);
     });
@@ -81,8 +61,8 @@ exports.getGatewayDetails = async function (req, res) {
     const encodedGatewayIP = req.query.ip;
 
     if(encodedGatewayId && encodedGatewayIP) {
-        const gatewayId = decodeFromBase64(encodedGatewayId);
-        const gatewayIP = decodeFromBase64(encodedGatewayIP);
+        const gatewayId = utils.decodeFromBase64(encodedGatewayId);
+        const gatewayIP = utils.decodeFromBase64(encodedGatewayIP);
 
         //get sensors
         const sensors = await utils.getSensorData(gatewayIP);

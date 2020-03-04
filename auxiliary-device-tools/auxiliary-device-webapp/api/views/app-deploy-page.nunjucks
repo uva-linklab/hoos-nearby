@@ -36,12 +36,12 @@
 	  	</button>
 	</nav>
     <main role="main" class="container">
-    	<form action="deploy-action" method="post">
+    	<form action="deploy" method="post" enctype="multipart/form-data">
 		  	<div class="starter-template">
 				<div class="row">
 					<div class="col-6 text-left">
-						<h3>Code:</h3>
-						<input type="file" name="codepath" accept=".js">
+						<h3>App:</h3>
+						<input type="file" name="app" accept=".js">
 					</div>
 				</div>
 
@@ -60,7 +60,9 @@
 
 				<div class="row">
 					<div class="col-6 text-left">
-						<input type="submit" value="Deploy Code!" />		
+						{#	pass on the gatewayIP to the POST data #}
+						<input type="hidden" name="gatewayIP" value="{{ gatewayIP }}">
+						<input type="submit" value="Deploy App" />
 					</div>
 				</div>							
 			</div>

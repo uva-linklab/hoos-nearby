@@ -1,6 +1,7 @@
 const request = require('request-promise');
 const pcap = require('pcap');
 const config = require('./config.json');
+const httpFileTransfer = require("./http-file-transfer");
 
 exports.getIPAddress = function() {
 	const networkInterface = config.network.interface;
@@ -51,4 +52,40 @@ exports.getNeighborData = async function(gatewayIP) {
 	const execUrl = `http://${gatewayIP}:5000/gateway/neighbors`;
 	const body = await request({method: 'GET', uri: execUrl});
 	return JSON.parse(body);
+};
+
+/**
+ * Calls the execute-app API to run an app on a specified gateway
+ * @param gatewayIP The ip of the gateway where the app needs to run
+ * @param appFiles Object with key-value pairs app and metadata paths
+ * @param successCallback
+ * @param failureCallback
+ */
+exports.executeAppOnGateway = function(gatewayIP, appFiles, successCallback, failureCallback) {
+	const httpFileTransferUri = `http://${gatewayIP}:5000/gateway/execute-app`;
+	httpFileTransfer.transferFiles(httpFileTransferUri,
+		appFiles,
+		successCallback,
+		failureCallback
+	);
+};
+
+/**
+ * Given an ascii string, encodes it to base64 and returns a base64 string
+ * @param str
+ * @returns {string}
+ */
+exports.encodeToBase64 = function(str) {
+	const buffer = new Buffer(str);
+	return buffer.toString('base64');
+};
+
+/**
+ * Given a base64 encoded string, returns its ascii string
+ * @param encodedStr
+ * @returns {string}
+ */
+exports.decodeFromBase64 = function(encodedStr) {
+	const buffer = new Buffer(encodedStr, 'base64');
+	return buffer.toString('ascii');
 };

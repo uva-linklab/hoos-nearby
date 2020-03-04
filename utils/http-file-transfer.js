@@ -10,8 +10,8 @@ const fs = require('fs');
  */
 exports.transferFiles = function (uri, files, successCallback, failureCallback) {
 	const readStreamObjects = {};
-	for (var formField in files) {
-		var filePath = files[formField];
+	for (const formField in files) {
+		const filePath = files[formField];
 		readStreamObjects[formField] = fs.createReadStream(filePath);
 	}
 

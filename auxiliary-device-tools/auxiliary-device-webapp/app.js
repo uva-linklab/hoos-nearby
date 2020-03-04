@@ -11,6 +11,7 @@ nunjucks.configure(PATH_TO_TEMPLATES, {
     autoescape: true,
     express: app
 });
+nunjucks.installJinjaCompat(); //for accessing additional filters like .values() on dictionary in nunjucks
 
 //body parser 
 app.use(bodyParser.json());

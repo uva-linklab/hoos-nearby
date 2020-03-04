@@ -5,3 +5,4 @@ utils/config.json
 .idea/
 package-lock.json
 auxiliary-device-tools/gateway-scanner-lite/group-key.json
+auxiliary-device-tools/auxiliary-device-webapp/temp-apps-dir/
