@@ -8,16 +8,23 @@ exports.renderAppDeployPage = async function(req, res){
     if(encodedGatewayIP) {
         const gatewayIP = utils.decodeFromBase64(encodedGatewayIP);
 
-        const linkGraph = await utils.getLinkGraphData(gatewayIP);
-        const linkGraphData = linkGraph["data"];
+        const linkGraph = await utils.getLinkGraphData(gatewayIP); //get the link graph
+        const linkGraphData = linkGraph["data"]; //{"G1": {"sensors": [{"_id": "s1",..}, {},..], ..}, "G2": {},...}
 
-        const gateways = Object.keys(linkGraphData);
+        const gateways = Object.keys(linkGraphData); //get the gateway ids => ["G1", "G2",..]
         const allSensorIds = gateways.map(gateway =>
-            linkGraphData[gateway]["sensors"].map(sensorData => sensorData["_id"]));
+            linkGraphData[gateway]["sensors"].map(sensorData => sensorData["_id"])
+        ); //[["s1", "s2"], ["s3", ..], ...]
 
-        //TODO use better impl. flatMap and flat did not work on node older version
-        //TODO there are duplicate sensors. Remove that.
-        const sensorList = allSensorIds.reduce((acc,sensors) => acc.concat(sensors));
+        //flatten the sensor id list
+        //flat and flatMap are only available in Node.js 11.0.0, so use reduce and concat each of the sensor list
+        //together with the starting accumulator as an empty list []
+        const flattenedSensorList =
+            allSensorIds.reduce((acc,sensors) => acc.concat(sensors)); //["s1", "s2", "s3",...]
+
+        //sensorList still contains duplicate sensorIds, since two gateways can have the same sensor id
+        //remove duplicates by creating a set and then converting back to a list
+        const sensorList = Array.from(new Set(flattenedSensorList));
 
         const data = {
             /*
