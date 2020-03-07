@@ -64,7 +64,7 @@
 						<input type="hidden" name="gatewayIP" value="{{ gatewayIP }}">
 						<input type="submit" value="Deploy App" />
 					</div>
-				</div>							
+				</div>
 			</div>
 		</form>
 
