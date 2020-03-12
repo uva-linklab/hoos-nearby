@@ -65,7 +65,6 @@ function deleteFile(filePath) {
  * @param appDeploymentCallback Indicates whether the app deployment was successful or not using a boolean argument
  */
 exports.deployApp = function(appPath, sensors, linkGraph, appDeploymentCallback) {
-    if(typeof sensors === "string") sensors = [sensors];
     getHostGateways(sensors, linkGraph).then(mapping => {
         console.log(mapping);
         const targetGatewayIP = getIdealGateway(mapping);

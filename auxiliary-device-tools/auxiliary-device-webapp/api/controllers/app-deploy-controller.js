@@ -43,7 +43,9 @@ exports.renderAppDeployPage = async function(req, res){
 exports.deployApp = async function (req, res) {
     //Get the POST data
     const appPath = req["files"]["app"][0]["path"]; //path to the app
-    const sensors = req.body.sensors; //list of sensor ids
+    let sensors = req.body.sensors; //list of sensor ids
+    // check `sensors` type. if only 1 sensor is selected, req.body.sensors will be a string. Otherwise, it will be an array.
+    if(typeof sensors === "string") sensors = [sensors];
     const gatewayIP = req.body.gatewayIP;
 
     //generate the link graph
