@@ -1,4 +1,4 @@
-const utils = require("../../../../utils");
+const utils = require("../../../utils");
 const appDeployer = require("../../../app-deployer");
 
 exports.renderAppDeployPage = async function(req, res){

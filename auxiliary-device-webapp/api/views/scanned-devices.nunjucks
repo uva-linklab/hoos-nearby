@@ -43,7 +43,7 @@
                     So Access the first gateway safely. #}
                     <h3>
                         <a target="_blank"
-                           href="../app-deployer?ip={{ encodeToBase64(gatewaysInRangeMap.values()[0]) }}">
+                           href="../../../app-deployerployer?ip={{ encodeToBase64(gatewaysInRangeMap.values()[0]) }}">
                             Deploy App</a>
                     </h3>
                 </div>

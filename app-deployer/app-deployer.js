@@ -1,5 +1,5 @@
 const fs = require('fs');
-const utils = require("../../utils");
+const utils = require("../utils");
 
 /**
  * Given a list of sensors and the current link graph of the network, finds out which gateways host those sensors.

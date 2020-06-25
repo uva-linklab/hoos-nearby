@@ -22,7 +22,7 @@ scan for gateways that are nearby using the group key of the network. The group 
 Usage
 
 ```js
-const GatewayScannerLite = require("auxiliary-device-tools/gateway-scanner-lite");
+const GatewayScannerLite = require("gateway-scanner-lite/gateway-scanner-lite");
 const scanner = new GatewayScannerLite(3000);
 
 scanner.on("peripheral-discovered", function (device_name, adv) {

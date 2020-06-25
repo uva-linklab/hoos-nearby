@@ -1,5 +1,5 @@
 const GatewayScanner = require('../../../gateway-scanner-lite');
-const utils = require('../../../../utils');
+const utils = require('../../../utils');
 
 exports.getScanResults = async function (req, res) {
     const gatewayScanner = new GatewayScanner(5000); //gateway scanner which scans for 10 secs
