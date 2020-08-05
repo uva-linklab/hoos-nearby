@@ -1,5 +1,5 @@
 const request = require('request-promise');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 /**
  * Post the files as multi-part form data to a specified uri.

@@ -1,5 +1,5 @@
-const utils = require("../../../utils");
-const appDeployer = require("../../../app-deployer");
+const utils = require("../../utils/utils");
+const appDeployerUtils = require("./app-deploy-utils");
 
 exports.renderAppDeployPage = async function(req, res){
     //receive the Base64 encoded GET params from the nunjucks page
@@ -52,7 +52,7 @@ exports.deployApp = async function (req, res) {
     const linkGraph = await utils.getLinkGraphData(gatewayIP);
 
     //deploy the app
-    appDeployer.deployApp(appPath, sensors, linkGraph, function(isDeploymentSuccessful) {
+    appDeployerUtils.deployApp(appPath, sensors, linkGraph, function(isDeploymentSuccessful) {
         const deploymentAlertMessage = isDeploymentSuccessful ? "App deployed on gateway network!" :
             "App deployment failed!";
 

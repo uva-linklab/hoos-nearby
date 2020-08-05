@@ -1,5 +1,6 @@
 const multer  = require('multer');
-const fs = require('fs');
+const fs = require('fs-extra');
+const path = require('path');
 
 const webpageRenderController = require("./controllers/webpage-render-controller");
 const gatewayScanController = require("./controllers/gateway-scan-controller");
@@ -24,10 +25,8 @@ module.exports = function(app) {
  */
 function getMultipartFormDataUploader() {
     //store the uploaded files to deployed-apps directory. Create this directory if not already present.
-    const tempAppsDirPath = `${__dirname}/../temp-apps-dir/`;
-    if (!fs.existsSync(tempAppsDirPath)){
-        fs.mkdirSync(tempAppsDirPath);
-    }
+    const tempAppsDirPath = path.join(__dirname, '..', 'temp-apps-dir');
+    fs.ensureDirSync(tempAppsDirPath);
 
     const multerStorage = multer.diskStorage({
         //set the storage destination

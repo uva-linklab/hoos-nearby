@@ -2,6 +2,7 @@ const request = require('request-promise');
 const pcap = require('pcap');
 const config = require('./config.json');
 const httpFileTransfer = require("./http-file-transfer");
+const crypto = require('crypto');
 
 exports.getIPAddress = function() {
 	const networkInterface = config.network.interface;
@@ -76,7 +77,7 @@ exports.executeAppOnGateway = function(gatewayIP, appFiles, successCallback, fai
  * @returns {string}
  */
 exports.encodeToBase64 = function(str) {
-	const buffer = new Buffer(str);
+	const buffer = Buffer.from(str, 'ascii');
 	return buffer.toString('base64');
 };
 
@@ -86,6 +87,22 @@ exports.encodeToBase64 = function(str) {
  * @returns {string}
  */
 exports.decodeFromBase64 = function(encodedStr) {
-	const buffer = new Buffer(encodedStr, 'base64');
+	const buffer = Buffer.from(encodedStr, 'base64');
 	return buffer.toString('ascii');
+};
+
+const algorithm = 'aes-256-ctr';
+
+exports.encryptAES = function(text, password, iv) {
+	const cipher = crypto.createCipheriv(algorithm, password, iv);
+	let encrypted = cipher.update(text, 'utf8', 'base64');
+	encrypted += cipher.final('base64');
+	return encrypted;
+};
+
+exports.decryptAES = function(encrypted, password, iv) {
+	const decipher = crypto.createDecipheriv(algorithm, password, iv);
+	let dec = decipher.update(encrypted, 'base64', 'utf8');
+	dec += decipher.final('utf8');
+	return dec;
 };

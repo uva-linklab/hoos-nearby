@@ -1,10 +1,13 @@
 const EventEmitter = require('events');
-const fs = require('fs');
+const fs = require('fs-extra');
 const noble = require('@abandonware/noble');
-const aesCrypto = require("./aes-crypto");
+const utils = require("../utils/utils");
+const path = require('path');
 
 const paramsFileName = "group-key.json";
-const paramsFilePath = __dirname + "/" + paramsFileName;
+const paramsFilePath = path.join(__dirname, paramsFileName);
+
+const gatewayUuid = '18338db15c5841cca00971c5fd792920';
 
 class GatewayScannerLite extends EventEmitter {
     /**
@@ -15,8 +18,8 @@ class GatewayScannerLite extends EventEmitter {
         super();
 
         this.timeoutMillis = timeoutMillis;
-        this.blackList = [];
         this.groupKey = this._getGroupKeyParams();
+        this.discoveredDevices = [];
         if (!this.groupKey) {
             console.log(`Group key params not found in ${paramsFilePath}. Please refer to setup instructions in the readme file.`);
             process.exit(1);
@@ -48,45 +51,28 @@ class GatewayScannerLite extends EventEmitter {
 
     _handleNobleStateChange(state) {
         if (state === 'poweredOn') {
-            noble.startScanning();
+            noble.startScanning([gatewayUuid], true);
 
             //stop noble scanning, notify listeners, and exit after timeoutMillis
             //note: arrow functions can also access the parent's context ("this")
             setTimeout(() => {
                 noble.stopScanning();
                 this.emit("scan-complete");
-                // process.exit(0);
             }, this.timeoutMillis);
-        } else {
+        } else if(state === 'poweredOff') {
+            console.log("Bluetooth appears to be disabled.");
             noble.stopScanning();
         }
     }
 
     _handleDiscoveredPeripheral(peripheral) {
-        if (this.blackList.includes(peripheral.id)) {
-            return;
-        }
-
-        if (!peripheral.advertisement.manufacturerData) {
-            const localName = peripheral.advertisement.localName;
-            if (typeof localName === "undefined") {
-                //blacklist the peripherals with undefined localName field
-                this.blackList.push(peripheral.id);
-            } else {
-                var data = localName.toString('utf8');
-                var discoveredIp = aesCrypto.decrypt(data, this.groupKey.key, this.groupKey.iv);
-                if (this._isValidIPAddress(discoveredIp)) {
-                    this.emit("peripheral-discovered", peripheral.id, discoveredIp);
-                } else {
-                    this.blackList.push(peripheral.id);
-                }
+        const localName = peripheral.advertisement.localName;
+        if(localName) {
+            if(!this.discoveredDevices.includes(localName)) {
+                const discoveredIp = utils.decryptAES(localName.toString('utf8'), this.groupKey.key, this.groupKey.iv);
+                this.emit("peripheral-discovered", peripheral.id, discoveredIp);
             }
         }
-    }
-
-    _isValidIPAddress(ipaddress) {
-        return (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-            .test(ipaddress))
     }
 }
 
