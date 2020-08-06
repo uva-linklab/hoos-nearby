@@ -34,12 +34,12 @@ exports.getLinkGraphData = async function(gatewayIP) {
 };
 
 /**
- * Uses the gateway API to query for the sensors connected to a given gateway
+ * Uses the gateway API to query for the devices connected to a given gateway
  * @param gatewayIP IP address of the gateway
  * @returns {Promise<json>}
  */
-exports.getSensorData = async function (gatewayIP) {
-	const execUrl = `http://${gatewayIP}:5000/gateway/sensors`;
+exports.getDeviceData = async function (gatewayIP) {
+	const execUrl = `http://${gatewayIP}:5000/gateway/devices`;
 	const body = await request({method: 'GET', uri: execUrl});
 	return JSON.parse(body);
 };
@@ -72,23 +72,23 @@ exports.executeAppOnGateway = function(gatewayIP, appFiles, successCallback, fai
 };
 
 /**
- * Given an ascii string, encodes it to base64 and returns a base64 string
+ * Given a utf-8 string, encodes it to base64 and returns it
  * @param str
  * @returns {string}
  */
 exports.encodeToBase64 = function(str) {
-	const buffer = Buffer.from(str, 'ascii');
+	const buffer = Buffer.from(str, 'utf-8');
 	return buffer.toString('base64');
 };
 
 /**
- * Given a base64 encoded string, returns its ascii string
+ * Given a base64 encoded string, returns its utf-8 string
  * @param encodedStr
  * @returns {string}
  */
 exports.decodeFromBase64 = function(encodedStr) {
 	const buffer = Buffer.from(encodedStr, 'base64');
-	return buffer.toString('ascii');
+	return buffer.toString('utf-8');
 };
 
 const algorithm = 'aes-256-ctr';

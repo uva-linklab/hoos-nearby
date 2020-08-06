@@ -49,9 +49,9 @@
 
 				<div class="row">
 					<div class="col-6 text-left">
-						<h3>Sensors</h3>
-						{% for sensor in sensors %}
-							<input type="checkbox" name="sensors" value="{{ sensor }}"> {{ sensor }}<br/>
+						<h3>Devices</h3>
+						{% for device in devices %}
+							<input type="checkbox" name="devices" value="{{ device }}"> {{ device }}<br/>
 						{% endfor %}
 					</div>
 				</div>

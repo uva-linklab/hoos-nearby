@@ -9,22 +9,16 @@ exports.renderAppDeployPage = async function(req, res){
         const gatewayIP = utils.decodeFromBase64(encodedGatewayIP);
 
         const linkGraph = await utils.getLinkGraphData(gatewayIP); //get the link graph
-        const linkGraphData = linkGraph["data"]; //{"G1": {"sensors": [{"_id": "s1",..}, {},..], ..}, "G2": {},...}
+        const linkGraphData = linkGraph["data"]; //{"G1": {"devices": [{"id": "d1",..}, {},..], ..}, "G2": {},...}
 
         const gateways = Object.keys(linkGraphData); //get the gateway ids => ["G1", "G2",..]
-        const allSensorIds = gateways.map(gateway =>
-            linkGraphData[gateway]["sensors"].map(sensorData => sensorData["_id"])
-        ); //[["s1", "s2"], ["s3", ..], ...]
+        const allDeviceIds = gateways.flatMap(gateway =>
+            linkGraphData[gateway]["devices"].map(deviceData => deviceData["id"])
+        ); //[["d1", "d2"], ["d3", ..], ...]
 
-        //flatten the sensor id list
-        //flat and flatMap are only available in Node.js 11.0.0, so use reduce and concat each of the sensor list
-        //together with the starting accumulator as an empty list []
-        const flattenedSensorList =
-            allSensorIds.reduce((acc,sensors) => acc.concat(sensors)); //["s1", "s2", "s3",...]
-
-        //sensorList still contains duplicate sensorIds, since two gateways can have the same sensor id
-        //remove duplicates by creating a set and then converting back to a list
-        const sensorList = Array.from(new Set(flattenedSensorList));
+        // allDeviceIds still contains duplicate deviceIds, since two gateways can have the same deviceId
+        // remove duplicates by creating a set and then converting back to a list
+        const deviceList = Array.from(new Set(allDeviceIds));
 
         const data = {
             /*
@@ -32,7 +26,7 @@ exports.renderAppDeployPage = async function(req, res){
             function can use the gatewayIP to get the link graph of the network
              */
             "gatewayIP": gatewayIP,
-            "sensors": sensorList
+            "devices": deviceList
         };
         res.render("app-deploy-page.nunjucks", data);
     } else {
@@ -43,16 +37,18 @@ exports.renderAppDeployPage = async function(req, res){
 exports.deployApp = async function (req, res) {
     //Get the POST data
     const appPath = req["files"]["app"][0]["path"]; //path to the app
-    let sensors = req.body.sensors; //list of sensor ids
-    // check `sensors` type. if only 1 sensor is selected, req.body.sensors will be a string. Otherwise, it will be an array.
-    if(typeof sensors === "string") sensors = [sensors];
+    let devices = req.body.devices; //list of deviceIds
+    // check `devices` type. if only 1 device is selected, req.body.devices will be a string. Otherwise, it will be an array.
+    if(typeof devices === "string") {
+        devices = [devices];
+    }
     const gatewayIP = req.body.gatewayIP;
 
     //generate the link graph
     const linkGraph = await utils.getLinkGraphData(gatewayIP);
 
     //deploy the app
-    appDeployerUtils.deployApp(appPath, sensors, linkGraph, function(isDeploymentSuccessful) {
+    appDeployerUtils.deployApp(appPath, devices, linkGraph, function(isDeploymentSuccessful) {
         const deploymentAlertMessage = isDeploymentSuccessful ? "App deployed on gateway network!" :
             "App deployment failed!";
 

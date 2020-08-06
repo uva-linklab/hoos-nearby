@@ -64,20 +64,13 @@ exports.getGatewayDetails = async function (req, res) {
         const gatewayId = utils.decodeFromBase64(encodedGatewayId);
         const gatewayIP = utils.decodeFromBase64(encodedGatewayIP);
 
-        //get sensors
-        const sensors = await utils.getSensorData(gatewayIP);
-        sensors.forEach(sensor => {
-            const receiver = sensor["receiver"];
-            sensor["receiver"] = receiver.split("-")[0];
-        });
-
-        //get neighbors
+        const devices = await utils.getDeviceData(gatewayIP);
         const neighbors = await utils.getNeighborData(gatewayIP);
 
         const data = {
             "gatewayId": gatewayId,
             "gatewayIP": gatewayIP,
-            "sensors": sensors,
+            "devices": devices,
             "neighbors": neighbors
         };
 

@@ -48,13 +48,14 @@
 			<div class="row mt-5"></div>
 			
 			<div class="row">
-				<div class="col-6">
-					<h3>Sensors</h3>
-					{% for sensor in sensors %}
-						{{ sensor["device"] }} ({{ sensor["_id"] }}, {{ sensor["receiver"] }})<br/>
+				<div class="col-7">
+					<h3>Devices</h3>
+					{% for device in devices %}
+						{{ device["type"] }} ({{ device["id"] }}, {{ device["handlerId"] }},
+						{{ device["controllerId"] }})<br/>
 					{% endfor %}
 				</div>
-				<div class="col-6">
+				<div class="col-5">
 					<h3>Neighbors</h3>
 					{% for neighbor in neighbors %}
 						{{ neighbor["_id"] }}<br/>	
