@@ -39,8 +39,8 @@
             </div>
             <div class="row">
                 <div class="col">
-                    {# since the linkGraphUrl is present, have at least one gateway in range.
-                    So Access the first gateway safely. #}
+                    {# since the linkGraphUrl is present, we have at least one gateway in range.
+                    So gatewaysInRangeMap will not be empty. Access the first gateway safely. #}
                     <h3>
                         <a target="_blank"
                            href="../app-deployer?ip={{ encodeToBase64(gatewaysInRangeMap.values()[0]) }}">
@@ -56,16 +56,24 @@
                         {# Send the gatewayId and gatewayIP as GET params after encoding in Base64 #}
                         <a target="_blank"
                            href="gateway?id={{ encodeToBase64(gatewayId) }}&ip={{ encodeToBase64(gatewayIP) }}">
-                            {{ gatewayId }}</a><br/>
+                            {{ gatewayId }} {{ "(in range)" if ('gatewayId' in gatewaysInRangeMap)  }}</a><br/>
                     {% endfor %}
                 </div>
                 <div class="col">
-                    <h3>Gateways in Range</h3>
-                    {% for gatewayId, gatewayIP in gatewaysInRangeMap %}
-                        {# Send the gatewayId and gatewayIP as GET params after encoding in Base64 #}
-                        <a target="_blank"
-                           href="gateway?id={{ encodeToBase64(gatewayId) }}&ip={{ encodeToBase64(gatewayIP) }}">
-                            {{ gatewayId }}</a><br/>
+                    <h3>Running Applications</h3>
+                    {% for gatewayIp, apps in appsMap %}
+                        {% for app in apps %}
+                            <a target="_blank"
+                               href="app?id={{ app._id }}&name={{ encodeToBase64(app.name) }}&gatewayIp={{ encodeToBase64(gatewayIp) }}">
+                                {{ app.name }}</a><br/>
+                        {% endfor %}
+                        {# Send the gatewayIP as GET params after encoding in Base64 #}
+                    {% endfor %}
+                </div>
+                <div class="col">
+                    <h3>Devices</h3>
+                    {% for device in devices %}
+                        {{ device.type }} ({{ device.id }})
                     {% endfor %}
                 </div>
             </div>

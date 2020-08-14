@@ -1,9 +1,11 @@
 const GatewayScanner = require('../../gateway-scanner-lite/gateway-scanner-lite');
+const gatewayScanner = GatewayScanner.getInstance();
 const utils = require('../../utils/utils');
 
 exports.getScanResults = async function (req, res) {
-    const gatewayScanner = new GatewayScanner(5000); //gateway scanner which scans for 10 secs
     const gatewaysInRange = []; //list of ip addresses of the gateways that are in range of the auxiliary device
+
+    gatewayScanner.startScanning(5000); // scan for 5 seconds
 
     /*
     Whenever a new gateway is discovered in proximity by the scanner, add it to the gatewayInRange list.
@@ -22,7 +24,9 @@ exports.getScanResults = async function (req, res) {
         */
         const gatewaysInRangeMap = {}; //gatewayId -> gatewayIP
         const allGatewaysMap = {}; //gatewayId -> gatewayIP
-        var linkGraphVisualUrl = ""; //link to the visualization of the link graph data
+        const appsMap = {}; // gatewayIp -> [apps]
+        const deviceMap = {}; // deviceId -> details
+        let linkGraphVisualUrl = ""; //link to the visualization of the link graph data
 
         //if there is at least one gateway in range, then take the first ip as sample and then get the entire link
         //graph from that
@@ -42,6 +46,13 @@ exports.getScanResults = async function (req, res) {
                 if (gatewaysInRange.includes(gatewayIP)) {
                     gatewaysInRangeMap[gatewayId] = gatewayIP;
                 }
+
+                // keep concatenating the apps of each gateway to the appsList
+                appsMap[gatewayIP] = entry[1]["apps"];
+
+                // to remove duplicate devices, we keep a map indexed on the deviceId
+                const devices = entry[1]["devices"];
+                devices.forEach(device => deviceMap[device['id']] = device);
             }
         }
 
@@ -49,6 +60,8 @@ exports.getScanResults = async function (req, res) {
             "gatewaysInRangeMap": gatewaysInRangeMap,
             "allGatewaysMap": allGatewaysMap,
             "linkGraphUrl": linkGraphVisualUrl,
+            "appsMap": appsMap,
+            "devices": Object.values(deviceMap), // get a list of the device details from the map
             "encodeToBase64": utils.encodeToBase64 //send the base64 encode function to nunjucks to encode GET params
         };
         res.render('scanned-devices.nunjucks', data);
@@ -76,6 +89,26 @@ exports.getGatewayDetails = async function (req, res) {
 
         res.render("gateway-page.nunjucks", data);
     } else {
+        res.sendStatus(404);
+    }
+};
+
+exports.getAppDetails = async function(req, res) {
+    const appId = req.query.id;
+    const encodedAppName = req.query.name;
+    const encodedGatewayIp = req.query.gatewayIp;
+
+    if(encodedAppName && encodedGatewayIp) {
+        const appName = utils.decodeFromBase64(encodedAppName);
+        const gatewayIp = utils.decodeFromBase64(encodedGatewayIp);
+
+        const app = {
+            'id': appId,
+            'name': appName,
+            'gatewayIp': gatewayIp
+        };
+        res.render('app-page.nunjucks', app);
+    }  else {
         res.sendStatus(404);
     }
 };

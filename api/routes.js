@@ -16,6 +16,7 @@ module.exports = function(app) {
     app.get('/scan', gatewayScanController.getScanResults);
     app.get('/app-deployer', appDeployController.renderAppDeployPage);
     app.post('/deploy', uploader.fields([{name: 'app'}]), appDeployController.deployApp);
+    app.get('/app', gatewayScanController.getAppDetails);
 };
 
 /**

@@ -22,14 +22,15 @@ scan for gateways that are nearby using the group key of the network. The group 
 Usage
 
 ```js
-const GatewayScannerLite = require("gateway-scanner-lite/gateway-scanner-lite");
-const scanner = new GatewayScannerLite(3000);
+const GatewayScanner = require('./gateway-scanner-lite');
+const gatewayScanner = GatewayScanner.getInstance();
+gatewayScanner.startScanning(5000); // scan for 5 seconds
 
-scanner.on("peripheral-discovered", function (device_name, adv) {
-  console.log(`Discovered ${device_name}, ${adv}`);
+gatewayScanner.on("peripheral-discovered", function (gatewayId, gatewayIp) {
+  console.log(`Discovered ${gatewayId}, ${gatewayIp}`);
 });
 
-scanner.on("scan-complete", function () {
+gatewayScanner.on("scan-complete", function () {
   console.log("scan complete");
 });
 ```

@@ -67,13 +67,10 @@ function deleteFile(filePath) {
  */
 exports.deployApp = function(appPath, devices, linkGraph, appDeploymentCallback) {
     getHostGateways(devices, linkGraph).then(mapping => {
-        console.log(mapping);
         const targetGatewayIP = getIdealGateway(mapping);
-        console.log(`Target gateway = ${targetGatewayIP}`);
 
         //store the metadata to a file
         const metadata = {"deviceMapping": mapping};
-        console.log(metadata);
         const metadataPath = path.join(__dirname, 'metadata.json');
         fs.writeFileSync(metadataPath, JSON.stringify(metadata));
 
@@ -84,13 +81,11 @@ exports.deployApp = function(appPath, devices, linkGraph, appDeploymentCallback)
         };
 
         utils.executeAppOnGateway(targetGatewayIP, appFiles, function() {
-                console.log('App deployed on gateway network!');
                 appDeploymentCallback(true);
                 deleteFile(appPath);
                 deleteFile(metadataPath);
             },
             function() {
-                console.log('App deployment failed!');
                 appDeploymentCallback(false);
                 deleteFile(appPath);
                 deleteFile(metadataPath);

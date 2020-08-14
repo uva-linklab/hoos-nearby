@@ -45,6 +45,17 @@ exports.getDeviceData = async function (gatewayIP) {
 };
 
 /**
+ * Uses the gateway API to query for the apps running on a given gateway
+ * @param gatewayIP IP address of the gateway
+ * @returns {Promise<json>}
+ */
+exports.getAppsData = async function (gatewayIP) {
+	const execUrl = `http://${gatewayIP}:5000/gateway/apps`;
+	const body = await request({method: 'GET', uri: execUrl});
+	return JSON.parse(body);
+};
+
+/**
  * Uses the gateway API to query for the neighbors of a given gateway
  * @param gatewayIP IP address of the gateway
  * @returns {Promise<json>} promise of a list of list of gateway_name and gateway_IP
