@@ -42,7 +42,7 @@ class GatewayScannerLite extends EventEmitter {
                         resolve();
                     } else if(state === 'poweredOff') {
                         console.log('[ble-scanner] BLE appears to be disabled.');
-                        this.stopScanning();
+                        noble.stopScanning();
                     } else if(state === 'scanStop') {
                         console.log('[ble-scanner] BLE scan stopped.');
                     } else if(state === 'scanStart') {
