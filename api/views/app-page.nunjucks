@@ -70,7 +70,7 @@
 
         <div class="row mt-2"></div>
 
-        <div class="row" hidden id="logBoxDiv">
+        <div class="row" hidden id="log-box-parent">
             <div class="col-11" id="log-display-box">
             </div>
             <div class="col-1">
@@ -80,7 +80,7 @@
 
         <div class="row mt-2"></div>
 
-        <div class="row" hidden id="stopLogButtonDiv">
+        <div class="row" hidden id="stop-log-button-div">
             <div class="col">
                 <input type="button" onclick="stopLogStreaming('{{ gatewayIp }}', '{{ id }}')" value="Stop Logging">
             </div>
@@ -124,25 +124,37 @@
         }
     }
 
-    /**
-     * Use the gateway API to start the log streaming of an app
-     * @param gatewayIp
-     * @param appId
-     */
     async function startLogStreaming(gatewayIp, appId) {
-        const execUrl = `http://${gatewayIp}:5000/gateway/apps/${appId}/start-log-streaming`;
+        // first obtain the mqtt topic where the app's log is streaming
+        const execUrl = `http://${gatewayIp}:5000/gateway/apps/${appId}/log-streaming-topic`;
         const response = await fetch(execUrl, {method: 'GET'})
             .then(response => response.json());
         if(response.status) {
-            // make the stopbutton div and logbox div visible
-            document.getElementById('logBoxDiv').hidden = false;
-            document.getElementById('stopLogButtonDiv').hidden = false;
+            // if all is well, then update the UI for displaying the logs
 
-            const appLogTopic = response['appLogTopic'];
+            // make the stopbutton div and logbox div visible
+            document.getElementById('log-box-parent').hidden = false;
+            document.getElementById('stop-log-button-div').hidden = false;
+
+            // clear out the contents of the log box (in case we are pressing the inspect logs button again)
+            logDisplayBox.innerHTML = "";
 
             scrollToBottom();
 
-            subscribeToMqtt(gatewayIp, appLogTopic, message => {
+            const appLogTopic = response['appLogTopic'];
+
+            // ask the gateway platform to start streaming once we're done setting up stuff
+            const onConnect = () => {
+                requestLogStreaming(gatewayIp, appId).then(response => {
+                    if(!response.status) {
+                        mqtt.disconnect();
+                        alert(`Error: ${response.error}`);
+                    }
+                });
+            };
+
+            // get ready to obtain the streamed messages by subscribing to the topic provided
+            subscribeToMqtt(gatewayIp, appLogTopic, onConnect, message => {
                 const shouldScroll = logDisplayBox.scrollTop + logDisplayBox.clientHeight === logDisplayBox.scrollHeight;
 
                 // append the new message from mqtt to the logDisplayBox div
@@ -160,11 +172,12 @@
         }
     }
 
-    /**
-     * Use the gateway API to start the log streaming of an app
-     * @param gatewayIp
-     * @param appId
-     */
+    async function requestLogStreaming(gatewayIp, appId) {
+        const execUrl = `http://${gatewayIp}:5000/gateway/apps/${appId}/start-log-streaming`;
+        return await fetch(execUrl, {method: 'GET'})
+            .then(response => response.json());
+    }
+
     async function stopLogStreaming(gatewayIp, appId) {
         const execUrl = `http://${gatewayIp}:5000/gateway/apps/${appId}/stop-log-streaming`;
         const response = await fetch(execUrl, {method: 'GET'})
@@ -184,9 +197,10 @@
      * Subscribe to MQTT over websocket.
      * @param ip ip address to connect to
      * @param topic mqtt topic
-     * @param callback
+     * @param onConnect callback on successful connection to mqtt broker
+     * @param onMessageArrived callback when there is a new mqtt message
      */
-    function subscribeToMqtt(ip, topic, callback) {
+    function subscribeToMqtt(ip, topic, onConnect, onMessageArrived) {
         const port=9001; // the port for MQTT over WS setup in the gateway mosquitto client
 
         mqtt = new Paho.MQTT.Client(ip,port,"clientjs");
@@ -194,9 +208,10 @@
             timeout: 3,
             onSuccess: () => {
                 mqtt.subscribe(topic);
+                onConnect();
             }
         };
-        mqtt.onMessageArrived = callback;
+        mqtt.onMessageArrived = onMessageArrived;
 
         mqtt.connect(options); //connect
     }
