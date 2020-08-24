@@ -1,11 +1,6 @@
 const EventEmitter = require('events');
-const fs = require('fs-extra');
 const noble = require('@abandonware/noble');
 const utils = require("../utils/utils");
-const path = require('path');
-
-const paramsFileName = "group-key.json";
-const paramsFilePath = path.join(__dirname, paramsFileName);
 
 const gatewayUuid = '18338db15c5841cca00971c5fd792920';
 
@@ -16,11 +11,6 @@ class GatewayScannerLite extends EventEmitter {
         super();
         this._initialized = false;
         this.discoveredDevices = [];
-        this.groupKey = this._getGroupKeyParams();
-        if (!this.groupKey) {
-            console.log(`Group key params not found in ${paramsFilePath}. Please refer to setup instructions in the readme file.`);
-            process.exit(1);
-        }
     }
 
     static getInstance() {
@@ -71,22 +61,13 @@ class GatewayScannerLite extends EventEmitter {
                 const localName = peripheral.advertisement.localName;
                 if(localName) {
                     if(!this.discoveredDevices.includes(localName)) {
-                        const discoveredIp = utils.decryptAES(localName.toString('utf8'), this.groupKey.key, this.groupKey.iv);
-                        this.emit("peripheral-discovered", peripheral.id, discoveredIp);
+                        const gatewayDetails = utils.getGatewayDetails(localName.toString('utf8'));
+                        this.emit("peripheral-discovered", gatewayDetails.id, gatewayDetails.ip);
                         this.discoveredDevices.push(localName);
                     }
                 }
             });
         })
-    }
-
-    _getGroupKeyParams() {
-        if (!fs.existsSync(paramsFilePath)) {
-            return "";
-        } else {
-            const keyParams = fs.readFileSync(paramsFilePath, 'utf-8');
-            return JSON.parse(keyParams);
-        }
     }
 }
 

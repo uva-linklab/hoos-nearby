@@ -4,5 +4,4 @@ logs/
 utils/config.json
 .idea/
 package-lock.json
-gateway-scanner-lite/group-key.json
 temp-apps-dir/

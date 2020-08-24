@@ -40,8 +40,8 @@
 			<div class="row">
 				<div class="col">
 					<h2>Gateway</h2>
-					ID = {{ gatewayId }}<br/>
-					IP Address = {{ gatewayIP }}<br/>
+					Id = {{ gatewayId }}<br/>
+					Ip Address = {{ gatewayIP }}<br/>
 				</div>
 			</div>
 			
@@ -58,7 +58,7 @@
 				<div class="col-5">
 					<h3>Neighbors</h3>
 					{% for neighbor in neighbors %}
-						{{ neighbor["_id"] }}<br/>	
+						{{ neighbor["id"] }}<br/>
 					{% endfor %}
 				</div>
 			</div>			

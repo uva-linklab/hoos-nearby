@@ -64,7 +64,7 @@
                     {% for gatewayIp, apps in appsMap %}
                         {% for app in apps %}
                             <a target="_blank"
-                               href="app?id={{ app._id }}&name={{ encodeToBase64(app.name) }}&gatewayIp={{ encodeToBase64(gatewayIp) }}">
+                               href="app?id={{ app.id }}&name={{ encodeToBase64(app.name) }}&gatewayIp={{ encodeToBase64(gatewayIp) }}">
                                 {{ app.name }}</a><br/>
                         {% endfor %}
                         {# Send the gatewayIP as GET params after encoding in Base64 #}
