@@ -37,67 +37,68 @@ function decryptAES(encrypted, password, iv) {
 	return dec;
 }
 
-function getLinkGraphVisualUrl(gatewayIP) {
-	return `http://${gatewayIP}:5000/platform/link-graph-visual`;
+function getLinkGraphVisualUrl(gatewayIp) {
+	return `http://${gatewayIp}:5000/platform/link-graph-visual`;
 }
 
 /**
  * Use the platform API to get the link graph data
  * @returns {Promise<json>} promise of the link graph json
  */
-async function getLinkGraphData(gatewayIP) {
-	const execUrl = `http://${gatewayIP}:5000/platform/link-graph-data`;
+async function getLinkGraphData(gatewayIp) {
+	const execUrl = `http://${gatewayIp}:5000/platform/link-graph-data`;
 	const body = await request({method: 'GET', uri: execUrl});
 	return JSON.parse(body);
 }
 
 /**
  * Uses the gateway API to query for the devices connected to a given gateway
- * @param gatewayIP IP address of the gateway
+ * @param gatewayIp IP address of the gateway
  * @returns {Promise<json>}
  */
-async function getDeviceData(gatewayIP) {
-	const execUrl = `http://${gatewayIP}:5000/gateway/devices`;
+async function getDeviceData(gatewayIp) {
+	const execUrl = `http://${gatewayIp}:5000/gateway/devices`;
 	const body = await request({method: 'GET', uri: execUrl});
 	return JSON.parse(body);
 }
 
 /**
  * Uses the gateway API to query for the apps running on a given gateway
- * @param gatewayIP IP address of the gateway
+ * @param gatewayIp IP address of the gateway
  * @returns {Promise<json>}
  */
-async function getAppsData(gatewayIP) {
-	const execUrl = `http://${gatewayIP}:5000/gateway/apps`;
+async function getAppsData(gatewayIp) {
+	const execUrl = `http://${gatewayIp}:5000/gateway/apps`;
 	const body = await request({method: 'GET', uri: execUrl});
 	return JSON.parse(body);
 }
 
 /**
  * Uses the gateway API to query for the neighbors of a given gateway
- * @param gatewayIP IP address of the gateway
+ * @param gatewayIp IP address of the gateway
  * @returns {Promise<json>} promise of a list of list of gateway_name and gateway_IP
  */
-async function getNeighborData(gatewayIP) {
-	const execUrl = `http://${gatewayIP}:5000/gateway/neighbors`;
+async function getNeighborData(gatewayIp) {
+	const execUrl = `http://${gatewayIp}:5000/gateway/neighbors`;
+	const body = await request({method: 'GET', uri: execUrl});
+	return JSON.parse(body);
+}
+
+async function getResourceUsage(gatewayIp) {
+	const execUrl = `http://${gatewayIp}:5000/gateway/resource-usage`;
 	const body = await request({method: 'GET', uri: execUrl});
 	return JSON.parse(body);
 }
 
 /**
- * Calls the execute-app API to run an app on a specified gateway
+ * * Calls the execute-app API to run an app on a specified gateway
  * @param gatewayIP The ip of the gateway where the app needs to run
  * @param appFiles Object with key-value pairs app and metadata paths
- * @param successCallback
- * @param failureCallback
+ * @return {*}
  */
-function executeAppOnGateway(gatewayIP, appFiles, successCallback, failureCallback) {
+function executeAppOnGateway(gatewayIP, appFiles) {
 	const httpFileTransferUri = `http://${gatewayIP}:5000/gateway/execute-app`;
-	httpFileTransfer.transferFiles(httpFileTransferUri,
-		appFiles,
-		successCallback,
-		failureCallback
-	);
+	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles);
 }
 
 /**
@@ -128,6 +129,7 @@ module.exports = {
 	getAppsData: getAppsData,
 	getNeighborData: getNeighborData,
 	executeAppOnGateway: executeAppOnGateway,
+	getResourceUsage: getResourceUsage,
 	encodeToBase64: encodeToBase64,
 	decodeFromBase64: decodeFromBase64
 };

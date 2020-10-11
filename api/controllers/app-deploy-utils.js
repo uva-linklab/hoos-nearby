@@ -2,6 +2,43 @@ const fs = require('fs-extra');
 const utils = require('../../utils/utils');
 const path = require('path');
 
+class Gateway {
+    constructor(ip, memoryFreeMB, cpuFreePercent, numDevicesSupported) {
+        this.ip = ip;
+        this.memoryFreeMB = memoryFreeMB;
+        this.cpuFreePercent = cpuFreePercent;
+        this.numDevicesSupported = numDevicesSupported;
+    }
+
+    toString() {
+        return `Gateway @ ${this.ip}, [MemFreeMB: ${this.memoryFreeMB}, CPUFreePercent: ${this.cpuFreePercent}, 
+            numDevicesSupported: ${this.numDevicesSupported}]`;
+    }
+}
+
+// Specifies the threshold free CPU % and available memory on the gateways to execute an application
+const CPU_FREE_PERCENT_THRESHOLD = 0.05; // 5% free CPU
+const MEM_FREE_MB_THRESHOLD = 200; // 200MB of available memory
+
+/**
+ * Returns the best gateway to execute an application among two specified gateways.
+ * The gateway is picked based on the number of supported devices, memory usage, and cpu usage (in that order).
+ * @param gateway1 @type Gateway
+ * @param gateway2 @type Gateway
+ * @return {Gateway}
+ */
+function compareGateways(gateway1, gateway2) {
+    if(gateway1.numDevicesSupported === gateway2.numDevicesSupported) {
+        if(gateway1.memoryFreeMB === gateway2.memoryFreeMB) {
+            return gateway1.cpuFreePercent >= gateway2.cpuFreePercent ? gateway1 : gateway2;
+        } else {
+            return gateway1.memoryFreeMB > gateway2.memoryFreeMB ? gateway1 : gateway2;
+        }
+    } else {
+        return gateway1.numDevicesSupported > gateway2.numDevicesSupported ? gateway1 : gateway2;
+    }
+}
+
 /**
  * Given a list of devices and the current link graph of the network, finds out which gateways host those devices.
  * Returns a dictionary of gateway->[sensor-ids]
@@ -36,18 +73,6 @@ async function getHostGateways(devicesIds, linkGraph) {
     return gatewayToSensorMapping;
 }
 
-/**
- * Given a mapping of type gateway->[deviceId], return the IP of the gateway with the most number of devices.
- * @param gatewayDeviceMapping
- * @returns {string}
- */
-function getIdealGateway(gatewayDeviceMapping) {
-    return Object.keys(gatewayDeviceMapping)
-        .reduce(function (gatewayI, gatewayJ) {
-            return (gatewayDeviceMapping[gatewayI].length >= gatewayDeviceMapping[gatewayJ].length) ? gatewayI : gatewayJ;
-        });
-}
-
 function deleteFile(filePath) {
     try {
         fs.unlinkSync(filePath);
@@ -57,20 +82,45 @@ function deleteFile(filePath) {
 }
 
 /**
- * Given an app, the device ids that the app uses, and the current link graph of the network, this function generates
- * a metadata file containing the gateways that house the devices, then identifies the best gateway to run the app, and
- * uses the Gateway API on that gateway to execute the app.
+ * This function picks the best gateway to run the app and uses the API on that gateway to execute the app.
  * @param appPath Path to the app
  * @param devices List of device ids
  * @param linkGraph
- * @param appDeploymentCallback Indicates whether the app deployment was successful or not using a boolean argument
+ * @param callback Indicates whether the app deployment was successful or not using a boolean argument
  */
-exports.deployApp = function(appPath, devices, linkGraph, appDeploymentCallback) {
-    getHostGateways(devices, linkGraph).then(mapping => {
-        const targetGatewayIP = getIdealGateway(mapping);
+exports.deployApp = async function(appPath, devices, linkGraph, callback) {
+    // for each gateway in the link graph, obtain the resource usage
+    const gatewayIpAddresses = Object.values(linkGraph.data).map(value => value.ip);
+
+    const promises = gatewayIpAddresses.map(ip => utils.getResourceUsage(ip));
+    const resourceUsages = await Promise.all(promises);
+
+    const gatewayToDeviceMapping = await getHostGateways(devices, linkGraph);
+
+    const availableGateways = [];
+    gatewayIpAddresses.forEach((gatewayIp, index) => {
+        const gateway = new Gateway(gatewayIp,
+            resourceUsages[index]['memoryFreeMB'],
+            resourceUsages[index]['cpuFreePercent'],
+            gatewayToDeviceMapping.hasOwnProperty(gatewayIp) ?
+                gatewayToDeviceMapping[gatewayIp].length : 0);
+
+        availableGateways.push(gateway);
+    });
+
+    // filter out gateways which do not have enough resources to run the application
+    const candidateGateways = availableGateways.filter(gateway => gateway.cpuFreePercent >= CPU_FREE_PERCENT_THRESHOLD &&
+        gateway.memoryFreeMB >= MEM_FREE_MB_THRESHOLD);
+
+    if(candidateGateways.length === 0) {
+        callback(false, 'Gateway devices are low on resources. Could not deploy application.');
+        deleteFile(appPath);
+    } else {
+        // find the best gateway by comparing amongst each other
+        const idealGateway = candidateGateways.reduce(compareGateways);
 
         //store the metadata to a file
-        const metadata = {"deviceMapping": mapping};
+        const metadata = {"deviceMapping": gatewayToDeviceMapping};
         const metadataPath = path.join(__dirname, 'metadata.json');
         fs.writeFileSync(metadataPath, JSON.stringify(metadata));
 
@@ -80,15 +130,12 @@ exports.deployApp = function(appPath, devices, linkGraph, appDeploymentCallback)
             metadata: metadataPath
         };
 
-        utils.executeAppOnGateway(targetGatewayIP, appFiles, function() {
-                appDeploymentCallback(true);
+        utils.executeAppOnGateway(idealGateway.ip, appFiles)
+            .then(() => callback(true, ''))
+            .catch(() => callback(false, `App deployment attempt on ${idealGateway.ip} failed. Please try again.`))
+            .finally(() => {
                 deleteFile(appPath);
                 deleteFile(metadataPath);
-            },
-            function() {
-                appDeploymentCallback(false);
-                deleteFile(appPath);
-                deleteFile(metadataPath);
-            })
-    });
+            });
+    }
 };

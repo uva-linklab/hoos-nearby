@@ -48,9 +48,8 @@ exports.deployApp = async function (req, res) {
     const linkGraph = await utils.getLinkGraphData(gatewayIP);
 
     //deploy the app
-    appDeployerUtils.deployApp(appPath, devices, linkGraph, function(isDeploymentSuccessful) {
-        const deploymentAlertMessage = isDeploymentSuccessful ? "App deployed on gateway network!" :
-            "App deployment failed!";
+    await appDeployerUtils.deployApp(appPath, devices, linkGraph, function(isSuccessful, errorMsg) {
+        const deploymentAlertMessage = isSuccessful ? "App deployed on gateway network!" : errorMsg;
 
         const data = {
             "deploymentAlertMessage": deploymentAlertMessage
