@@ -73,7 +73,7 @@
                 <div class="col">
                     <h3>Devices</h3>
                     {% for device in devices %}
-                        {{ device.type }} ({{ device.id }})
+                        {{ device.type }} ({{ device.id }})<br/>
                     {% endfor %}
                 </div>
             </div>

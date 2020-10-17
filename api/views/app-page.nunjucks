@@ -31,6 +31,7 @@
             width: 500px;
             overflow: auto;
             display: block;
+            text-align: left;
         }
     </style>
 
