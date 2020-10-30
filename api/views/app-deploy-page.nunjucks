@@ -43,6 +43,14 @@
 						<h3>App:</h3>
 						<input type="file" name="app" accept=".js">
 					</div>
+                    <div class="col-6 text-left">
+                        <h3>Runtime:</h3>
+						<input type="radio" name="runtime" value="python">
+						<label for="python">Python</label><br>
+						<input type="radio" name="runtime" value="nodejs">
+						<label for="nodejs">Node.js v12.16</label><br>
+
+                    </div>
 				</div>
 
 				<div class="row mt-5"></div>
