@@ -114,11 +114,14 @@ async function getResourceUsage(gatewayIp) {
  * * Calls the execute-app API to run an app on a specified gateway
  * @param gatewayIP The ip of the gateway where the app needs to run
  * @param appFiles Object with key-value pairs app and metadata paths
+ * @param runtime
  * @return {*}
  */
-function executeAppOnGateway(gatewayIP, appFiles) {
+function executeAppOnGateway(gatewayIP, appFiles, runtime) {
 	const httpFileTransferUri = `http://${gatewayIP}:5000/gateway/execute-app`;
-	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles);
+	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles, {
+		runtime: runtime
+	});
 }
 
 /**

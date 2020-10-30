@@ -85,10 +85,11 @@ function deleteFile(filePath) {
  * This function picks the best gateway to run the app and uses the API on that gateway to execute the app.
  * @param appPath Path to the app
  * @param devices List of device ids
+ * @param runtime runtime to use for the app
  * @param linkGraph
  * @param callback Indicates whether the app deployment was successful or not using a boolean argument
  */
-exports.deployApp = async function(appPath, devices, linkGraph, callback) {
+exports.deployApp = async function(appPath, devices, runtime, linkGraph, callback) {
     // for each gateway in the link graph, obtain the resource usage
     const gatewayIpAddresses = Object.values(linkGraph.data).map(value => value.ip);
 
@@ -130,7 +131,7 @@ exports.deployApp = async function(appPath, devices, linkGraph, callback) {
             metadata: metadataPath
         };
 
-        utils.executeAppOnGateway(idealGateway.ip, appFiles)
+        utils.executeAppOnGateway(idealGateway.ip, appFiles, runtime)
             .then(() => callback(true, ''))
             .catch(() => callback(false, `App deployment attempt on ${idealGateway.ip} failed. Please try again.`))
             .finally(() => {

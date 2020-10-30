@@ -41,7 +41,7 @@
 				<div class="row">
 					<div class="col-6 text-left">
 						<h3>App:</h3>
-						<input type="file" name="app" accept=".js">
+						<input type="file" name="app" accept=".js,.py">
 					</div>
                     <div class="col-6 text-left">
                         <h3>Runtime:</h3>
