@@ -46,7 +46,7 @@
                     <div class="col-6 text-left">
                         <h3>Runtime:</h3>
 						<input type="radio" name="runtime" value="python">
-						<label for="python">Python</label><br>
+						<label for="python">Python v3.7.3</label><br>
 						<input type="radio" name="runtime" value="nodejs">
 						<label for="nodejs">Node.js v12.16</label><br>
 

@@ -11,9 +11,9 @@ module.exports = function(app) {
     //accepts two files. one with the form name as "code" and another called "metadata"
     const uploader = getMultipartFormDataUploader();
 
-    app.get('/', webpageRenderController.renderIndexPage);
+    // app.get('/', webpageRenderController.renderIndexPage);
     app.get('/gateway', gatewayScanController.getGatewayDetails);
-    app.get('/scan', gatewayScanController.getScanResults);
+    app.get('/', gatewayScanController.getScanResults);
     app.get('/app-deployer', appDeployController.renderAppDeployPage);
     app.post('/deploy', uploader.fields([{name: 'app'}]), appDeployController.deployApp);
     app.get('/app', gatewayScanController.getAppDetails);
