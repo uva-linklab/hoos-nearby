@@ -14,6 +14,9 @@ exports.getScanResults = async function(req, res) {
     const deviceMap = {}; // deviceId -> details
     let linkGraphVisualUrl = ""; //link to the visualization of the link graph data
 
+    let platformLastRestartTime = 0;
+    let platformLastRestartTimeStr = "";
+
     //if there is at least one gateway in range, then take the first ip as sample and then get the entire link
     //graph from that
     if(gatewaysInRange.length > 0) {
@@ -39,7 +42,17 @@ exports.getScanResults = async function(req, res) {
             // to remove duplicate devices, we keep a map indexed on the deviceId
             const devices = entry[1]["devices"];
             devices.forEach(device => deviceMap[device['id']] = device);
+
+            // get the gateway's start time
+            const startTime = (await utils.getGatewayStartTime(gatewayIP))['startTime'];
+            // compute the platform's start time as the latest time a gateway was started
+            platformLastRestartTime = Math.max(platformLastRestartTime, startTime);
         }
+    }
+
+    if(platformLastRestartTime !== 0) {
+        const date = new Date(platformLastRestartTime);
+        platformLastRestartTimeStr = `${date.toDateString()} ${date.toTimeString()}`;
     }
 
     const data = {
@@ -48,6 +61,7 @@ exports.getScanResults = async function(req, res) {
         "linkGraphUrl": linkGraphVisualUrl,
         "appsMap": appsMap,
         "devices": Object.values(deviceMap), // get a list of the device details from the map
+        "platformLastRestartTime": platformLastRestartTimeStr,
         "encodeToBase64": utils.encodeToBase64 //send the base64 encode function to nunjucks to encode GET params
     };
     res.render('scanned-devices.nunjucks', data);

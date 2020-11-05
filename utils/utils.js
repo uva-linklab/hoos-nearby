@@ -62,6 +62,16 @@ function getLinkGraphVisualUrl(gatewayIp) {
 }
 
 /**
+ * Use the Gateway API to get the link graph data
+ * @returns {Promise<json>} promise of the link graph json
+ */
+async function getGatewayStartTime(gatewayIp) {
+	const execUrl = `http://${gatewayIp}:5000/gateway/start-time`;
+	const body = await request({method: 'GET', uri: execUrl});
+	return JSON.parse(body);
+}
+
+/**
  * Use the platform API to get the link graph data
  * @returns {Promise<json>} promise of the link graph json
  */
@@ -148,6 +158,7 @@ module.exports = {
 	getGatewayIp: getGatewayIp,
 	getGatewayDetails: getGatewayDetails,
 	getLinkGraphVisualUrl: getLinkGraphVisualUrl,
+	getGatewayStartTime: getGatewayStartTime,
 	getLinkGraphData: getLinkGraphData,
 	getDeviceData: getDeviceData,
 	getAppsData: getAppsData,
