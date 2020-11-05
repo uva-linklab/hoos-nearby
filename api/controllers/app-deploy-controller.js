@@ -19,7 +19,7 @@ exports.renderAppDeployPage = async function(req, res){
         // allDeviceIds still contains duplicate deviceIds, since two gateways can have the same deviceId
         // remove duplicates by creating a set and then converting back to a list
         const deviceList = Array.from(new Set(allDeviceIds));
-
+        deviceList.sort(); // sort to make it better formatted in the UI
         const data = {
             /*
             pass on the gateway IP so that once the form submission happens on the app-deploy-page, the deployApp
