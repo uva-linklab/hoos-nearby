@@ -52,7 +52,7 @@
             {% if platformLastRestartTime %}
             <div class="row">
                 <div class="col">
-                    Platform Last Restart Time: {{ platformLastRestartTime }}
+                    <p style="font-size:15px">Network Last Restart Time: <i>{{ platformLastRestartTime }}</i></p>
                 </div>
             </div>
             {% endif %}

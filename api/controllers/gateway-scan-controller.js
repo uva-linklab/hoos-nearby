@@ -52,7 +52,7 @@ exports.getScanResults = async function(req, res) {
 
     if(platformLastRestartTime !== 0) {
         const date = new Date(platformLastRestartTime);
-        platformLastRestartTimeStr = `${date.toDateString()} ${date.toTimeString()}`;
+        platformLastRestartTimeStr = `${date.toDateString()}, ${date.toLocaleTimeString()}`;
     }
 
     const data = {
