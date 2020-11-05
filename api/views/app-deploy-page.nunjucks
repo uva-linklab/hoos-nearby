@@ -75,10 +75,26 @@
 				<div class="row mt-5"></div>
 
 				<div class="row">
-					<div class="col-6 text-left">
+					<div class="col-12 text-left">
 						<h3>Devices</h3>
 						{% for device in devices %}
-							<input type="checkbox" name="devices" value="{{ device }}"> {{ device }}<br/>
+							{% if loop.index0 % 4 == 0 %}
+								{#	close the previous row after 4 devices and if not the first device #}
+								{% if loop.index0 !== 0 %}
+									</div>
+								{% endif %}
+								{#	start a new row every 4 devices #}
+								<div class="row">
+							{% endif %}
+
+							{#	put checkbox for device #}
+							<div class="col-3 text-left">
+								<input type="checkbox" name="devices" value="{{ device }}"> {{ device }}</div>
+
+							{% if loop.index0 == loop.length - 1 %}
+								{#	close row if last device #}
+								</div>
+							{% endif %}
 						{% endfor %}
 					</div>
 				</div>
