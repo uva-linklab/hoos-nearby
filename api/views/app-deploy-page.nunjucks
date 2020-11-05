@@ -102,7 +102,7 @@
 				<div class="row mt-5"></div>
 
 				<div class="row">
-					<div class="col-6 text-center">
+					<div class="col-12 text-center">
 						{#	pass on the gatewayIP to the POST data #}
 						<input type="hidden" name="gatewayIP" value="{{ gatewayIP }}">
 						<input type="submit" value="Deploy App" />
