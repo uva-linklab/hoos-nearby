@@ -26,6 +26,25 @@
 		}
     </style>
 
+	<script>
+		function checkForm() {
+			// check if an app is selected
+			if( document.getElementById("appPicker").files.length === 0 ){
+				alert('Please select an app to deploy.');
+				return false;
+			}
+
+			// check if the runtime is selected
+			const selector = document.querySelector('input[name="runtime"]:checked');
+			if(!selector) {
+				alert('Please select a runtime for your app.');
+				return false;
+			}
+
+			return true;
+		}
+	</script>
+
     <title>Hoos Nearby?</title>
   </head>
   <body>
@@ -36,12 +55,12 @@
 	  	</button>
 	</nav>
     <main role="main" class="container">
-    	<form action="deploy" method="post" enctype="multipart/form-data">
+    	<form action="deploy" method="post" enctype="multipart/form-data" onSubmit="return checkForm()">
 		  	<div class="starter-template">
 				<div class="row">
 					<div class="col-6 text-left">
 						<h3>App:</h3>
-						<input type="file" name="app" accept=".js,.py">
+						<input id="appPicker" type="file" name="app" accept=".js,.py">
 					</div>
                     <div class="col-6 text-left">
                         <h3>Runtime:</h3>
