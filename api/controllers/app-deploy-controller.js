@@ -37,20 +37,22 @@ exports.renderAppDeployPage = async function(req, res){
 exports.deployApp = async function (req, res) {
     //Get the POST data
     const appPath = req["files"]["app"][0]["path"]; //path to the app
-    let devices = req.body.devices; //list of deviceIds
+    const devices = req.body.devices; //list of deviceIds
     const runtime = req.body.runtime;
 
-    // check `devices` type. if only 1 device is selected, req.body.devices will be a string. Otherwise, it will be an array.
-    if(typeof devices === "string") {
-        devices = [devices];
+    let deviceList = [];
+    if(devices) {
+        // check `devices` type. if only 1 device is selected, req.body.devices will be a string. Otherwise, it will be an array.
+        deviceList = typeof devices === "string" ? [devices] : devices;
     }
+
     const gatewayIP = req.body.gatewayIP;
 
     //generate the link graph
     const linkGraph = await utils.getLinkGraphData(gatewayIP);
 
     //deploy the app
-    await appDeployerUtils.deployApp(appPath, devices, runtime, linkGraph, function(isSuccessful, errorMsg) {
+    await appDeployerUtils.deployApp(appPath, deviceList, runtime, linkGraph, function(isSuccessful, errorMsg) {
         const deploymentAlertMessage = isSuccessful ? "App deployed on gateway network!" : errorMsg;
 
         const data = {
