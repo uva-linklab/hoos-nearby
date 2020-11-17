@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="css/starter-template.css">
+
+    <style type="text/css">
+    	body {
+		  padding-top: 5rem;
+		}
+		.starter-template {
+		  padding: 3rem 1.5rem;
+		  text-align: center;
+		}
+		.my-row {
+	       border: 3px solid yellow;
+		}
+		.my-col {
+			border: 3px dotted blue;
+		}
+    </style>
+
+	<script>
+		function setPolicy() {
+			const gatewayIP = $("#gatewayIP")[0].value;
+
+			const policy = [];
+			const setter = document.getElementById("policy-setter");
+			for(const row of setter.children) {
+				const eachPolicy = []
+				for(const elem of row.children) {
+					eachPolicy.push(elem.children[0].value);
+				}
+				policy.push(eachPolicy);
+			}
+
+			const url = "/policy-receiver";
+			$("#result").empty();
+			fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ policy: policy, gatewayIP: gatewayIP })
+			})
+				.then(response => {
+					if(response.status === 200) {
+						return response.json();
+					} else {
+						$("#result").html(`Error with status ${response.status}`);
+					}
+				})
+				.then(data => {
+					for(const ip in data) {
+						$("#result").append(`
+							<div class="row">
+								<div class="col-6 text-center">
+									${ip}
+								</div>
+								<div class="col-6 text-center">
+									${data[ip]}
+								</div>
+							</div>
+						`);
+					}
+				})
+				.catch((err) => {
+					console.info(err + " url: " + url);
+				});
+		}
+		function addPolicyRow() {
+			const policyRow = `
+			<div class="row">
+				<div class="col-3 text-left">
+					<input type="text" name="sensor" value="" placeholder="sensor-id1,sensor-id2,...">
+				</div>
+				<div class="col-3 text-left">
+					<input type="text" name="app" value="" placeholder="gateway-ip1:app-id1,gateway-ip2:app-id2,...">
+				</div>
+				<div class="col-3 text-left">
+					<input type="text" name="schedule" value="" placeholder="15-30 * * * * or * * * * *">
+				</div>
+				<div class="col-3 text-left">
+					<select class="form-control">
+						<option>true</option>
+						<option>false</option>
+					</select>
+				</div>
+			</div>`
+			$('#policy-setter').append(policyRow);
+		}
+	</script>
+
+    <title>Hoos Nearby?</title>
+  </head>
+  <body>
+	<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+		<a class="navbar-brand" href="#">Hoos Nearby?</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+	  	</button>
+	</nav>
+    <main role="main" class="container">
+    	<form action="/policy-receiver" method="post" enctype="multipart/form-data">
+		  	<div class="starter-template">
+
+				<div class="row">
+                    <div class="col-12 text-left">
+						<div class="row">
+							<div class="col-9 text-left">
+								<h3>Policy</h3>
+							</div>
+							<div class="col-3 text-right">
+								<button type="button" class="btn btn-secondary" onClick="addPolicyRow()">Add Policy</button>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-3 text-left">
+								Sensor
+							</div>
+							<div class="col-3 text-left">
+								App
+							</div>
+							<div class="col-3 text-left">
+								Schedule
+							</div>
+							<div class="col-3 text-left">
+								Block
+							</div>
+						</div>
+						<div id="policy-setter">
+							<div class="row">
+								{% for sensor, app, schedule, isBlock in policy %}
+									<div class="col-3 text-left">
+										<input type="text" name="sensor" value="{{ sensor }}" placeholder="sensor-id1,sensor-id2,...">
+									</div>
+									<div class="col-3 text-left">
+										<input type="text" name="app" value="{{ app }}" placeholder="gateway-ip1:app-id1,gateway-ip2:app-id2,...">
+									</div>
+									<div class="col-3 text-left">
+										<input type="text" name="schedule" value="{{ schedule }}" placeholder="15-30 * * * * or * * * * *">
+									</div>
+									<div class="col-3 text-left">
+										<select class="form-control">
+											{% if isBlock %}
+												<option selected="selected">true</option>
+												<option>false</option>
+											{% else %}
+												<option>true</option>
+												<option selected="selected">false</option>
+											{% endif %}
+										</select>
+									</div>
+								{% else %}
+									<div class="col-3 text-left">
+										<input type="text" name="sensor" value="" placeholder="sensor-id1,sensor-id2,...">
+									</div>
+									<div class="col-3 text-left">
+										<input type="text" name="app" value="" placeholder="gateway-ip1:app-id1,gateway-ip2:app-id2,...">
+									</div>
+									<div class="col-3 text-left">
+										<input type="text" name="schedule" value="" placeholder="15-30 * * * * or * * * * *">
+									</div>
+									<div class="col-3 text-left">
+										<select class="form-control">
+											<option>true</option>
+											<option>false</option>
+										</select>
+									</div>
+								{% endfor %}
+							</div>
+						</div>
+                    </div>
+				</div>
+
+				<div class="row mt-5"></div>
+
+				<div class="row">
+					<div class="col-12 text-center">
+						<input type="hidden" id="gatewayIP" name="gatewayIP" value="{{ gatewayIP }}">
+						<button type="button" class="btn btn-secondary" onClick="setPolicy()">Set Policy</button>
+					</div>
+				</div>
+				<div class="row mt-5"></div>
+
+				<div class="row">
+					<div class="col-6 text-left">
+						<h3>Result:</h3>
+						<div class="row">
+							<div class="col-6 text-center">
+								ip
+							</div>
+							<div class="col-6 text-center">
+								status
+							</div>
+						</div>
+						<div id="result"></div>
+					</div>
+				</div>
+			</div>
+		</form>
+
+    </main>
+
+	<!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
