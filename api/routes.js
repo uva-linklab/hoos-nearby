@@ -11,15 +11,15 @@ module.exports = function(app) {
     //setup multipart form-data which allows clients to upload code and mapping files for execution
     //accepts two files. one with the form name as "code" and another called "metadata"
     const uploader = getMultipartFormDataUploader();
-
+    const storePolicy = policySetController.storePolicy();
     // app.get('/', webpageRenderController.renderIndexPage);
     app.get('/gateway', gatewayScanController.getGatewayDetails);
     app.get('/', gatewayScanController.getScanResults);
     app.get('/app-deployer', appDeployController.renderAppDeployPage);
     app.post('/deploy', uploader.fields([{name: 'app'}]), appDeployController.deployApp);
     app.get('/app', gatewayScanController.getAppDetails);
-    app.get('/policy-setter', policySetController.renderPolicySetPage);
-    app.post("/policy-receiver", policySetController.policyReceiver);
+    app.get('/policy-setter', storePolicy, policySetController.renderPolicySetPage);
+    app.post("/policy-receiver", storePolicy, policySetController.policyReceiver);
 };
 
 /**
