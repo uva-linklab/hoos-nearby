@@ -48,10 +48,10 @@ exports.renderPolicySetPage = async function(req, res){
             "devices": deviceList,
             "apps": appList,
             "timeUnit": [
-                ["Minute", 0, 59],
-                ["Hour", 0, 23],
-                ["Day of Month", 1, 31],
-                ["Month", 1, 12],
+                ["Minute", 0, 60],
+                ["Hour", 0, 24],
+                ["Day of Month", 1, 32],
+                ["Month", 1, 13],
                 // ["Day of Week", 1, 7]
             ]
         }
