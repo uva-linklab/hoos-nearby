@@ -2,19 +2,6 @@ const utils = require("../../utils/utils");
 const fetch = require("node-fetch");
 const url = require('url');
 
-async function retrievePolicy(gatewayIps) {
-    const URL = `http://${gatewayIps}:5000/gateway/retrieve-privacy-policy`;
-    return await fetch(URL, {
-        method: "GET"
-    }).then(response => {
-        return response.json();
-    }).then(policy => {
-        return policy;
-    }).catch(err => {
-        console.error(err);
-    });
-}
-
 exports.renderPolicySetPage = async function(req, res){
     //receive the Base64 encoded GET params from the nunjucks page
     const encodedGatewayIP = req.query.ip;
@@ -41,7 +28,6 @@ exports.renderPolicySetPage = async function(req, res){
         appList.sort();
 
         const policy = req.query.policy;
-        console.log(policy)
         const data = {
             "policy": policy,
             "gatewayIP": gatewayIP,
@@ -160,7 +146,7 @@ function storePolicyFunc() {
     }
     return store;
 }
-
+// middleware for storing policy
 exports.storePolicy = storePolicyFunc;
 
 exports.policyReceiver = async function (req, res) {
