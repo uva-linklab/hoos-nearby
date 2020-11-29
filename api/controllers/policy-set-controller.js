@@ -101,16 +101,16 @@ function policyParser(policy, gatewayAppMap) {
                 }
                 const ip = appInfo[0];
                 const appId = appInfo[1];
-                if(!newPolicy["app-sensor"][ip]) {
-                    newPolicy["app-sensor"][ip] = {};
+                if (!newPolicy["app-sensor"][sensor]) {
+                    newPolicy["app-sensor"][sensor] = {};
                 }
-                if(!newPolicy["app-sensor"][ip][appId]) {
-                    newPolicy["app-sensor"][ip][appId] = {};
+                if (!newPolicy["app-sensor"][sensor][ip]) {
+                    newPolicy["app-sensor"][sensor][ip] = {};
                 }
-                for(const sensor of sensors) {
-                    newPolicy["app-sensor"][ip][appId][sensor] = {
-                        "block": row[3] === "Block",
-                        "schedule": row[2]
+                for (const sensor of sensors) {
+                    newPolicy["app-sensor"][sensor][ip][appId] = {
+                        block: row[3] === "Block",
+                        schedule: row[2],
                     };
                 }
             }
