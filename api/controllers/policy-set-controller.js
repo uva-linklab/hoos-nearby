@@ -1,22 +1,24 @@
 const utils = require("../../utils/utils");
 const fetch = require("node-fetch");
-const url = require('url');
+const url = require("url");
 
-exports.renderPolicySetPage = async function(req, res){
+exports.renderPolicySetPage = async function (req, res) {
     //receive the Base64 encoded GET params from the nunjucks page
     const encodedGatewayIP = req.query.ip;
 
-    if(encodedGatewayIP) {
+    if (encodedGatewayIP) {
         const gatewayIP = utils.decodeFromBase64(encodedGatewayIP);
         const linkGraph = await utils.getLinkGraphData(gatewayIP);
         const linkGraphData = linkGraph["data"]; //{"G1": {"devices": [{"id": "d1",..}, {},..], ..}, "G2": {},...}
 
         const gateways = Object.keys(linkGraphData); //get the gateway ids => ["G1", "G2",..]
-        const allDeviceIds = gateways.flatMap(gateway =>
-            linkGraphData[gateway]["devices"].map(deviceData => deviceData["id"])
+        const allDeviceIds = gateways.flatMap((gateway) =>
+            linkGraphData[gateway]["devices"].map(
+                (deviceData) => deviceData["id"]
+            )
         ); //[["d1", "d2"], ["d3", ..], ...]
-        const allApps = gateways.flatMap(gateway =>
-            linkGraphData[gateway]["apps"].map(appData => appData["name"])
+        const allApps = gateways.flatMap((gateway) =>
+            linkGraphData[gateway]["apps"].map((appData) => appData["name"])
         );
 
         // allDeviceIds still contains duplicate deviceIds, since two gateways can have the same deviceId
@@ -29,18 +31,18 @@ exports.renderPolicySetPage = async function(req, res){
 
         const policy = req.query.policy;
         const data = {
-            "policy": policy,
-            "gatewayIP": gatewayIP,
-            "devices": deviceList,
-            "apps": appList,
-            "timeUnit": [
+            policy: policy,
+            gatewayIP: gatewayIP,
+            devices: deviceList,
+            apps: appList,
+            timeUnit: [
                 ["Minute", 0, 60],
                 ["Hour", 0, 24],
                 ["Day of Month", 1, 32],
                 ["Month", 1, 13],
                 // ["Day of Week", 1, 7]
-            ]
-        }
+            ],
+        };
         res.render("policy-set-page.nunjucks", data);
     } else {
         res.sendStatus(404);
@@ -48,9 +50,9 @@ exports.renderPolicySetPage = async function(req, res){
 };
 
 function findIp(appName, gatewayAppMap) {
-    for(const ip in gatewayAppMap) {
-        for(const appInfo of gatewayAppMap[ip]) {
-            if(appInfo.name === appName) {
+    for (const ip in gatewayAppMap) {
+        for (const appInfo of gatewayAppMap[ip]) {
+            if (appInfo.name === appName) {
                 return [ip, appInfo["id"]];
             }
         }
@@ -62,52 +64,52 @@ function policyParser(policy, gatewayAppMap) {
     const newPolicy = {
         "sensor-specific": {},
         "app-specific": {},
-        "app-sensor": {}
+        "app-sensor": {},
     };
 
-    for(const row of policy) {
-        if(row[0].includes("*")) {
+    for (const row of policy) {
+        if (row[0].includes("*")) {
             const apps = row[1];
-            for(const appName of apps) {
+            for (const appName of apps) {
                 const appInfo = findIp(appName, gatewayAppMap);
-                if(!appInfo) {
+                if (!appInfo) {
                     continue;
                 }
                 const ip = appInfo[0];
                 const appId = appInfo[1];
-                if(!newPolicy["app-specific"][ip]) {
+                if (!newPolicy["app-specific"][ip]) {
                     newPolicy["app-specific"][ip] = {};
                 }
                 newPolicy["app-specific"][ip][appId] = {
-                    "block": row[3] === "Block",
-                    "schedule": row[2]
+                    block: row[3] === "Block",
+                    schedule: row[2],
                 };
             }
-        } else if(row[1].includes("*")) {
+        } else if (row[1].includes("*")) {
             const sensors = row[0];
-            for(const sensor of sensors) {
+            for (const sensor of sensors) {
                 newPolicy["sensor-specific"][sensor] = {
-                    "block": row[3] === "Block",
-                    "schedule": row[2]
+                    block: row[3] === "Block",
+                    schedule: row[2],
                 };
             }
-        } else if(row[0].length && row[1].length) {
+        } else if (row[0].length && row[1].length) {
             const sensors = row[0];
             const apps = row[1];
-            for(const appName of apps) {
+            for (const appName of apps) {
                 const appInfo = findIp(appName, gatewayAppMap);
-                if(!appInfo) {
+                if (!appInfo) {
                     continue;
                 }
                 const ip = appInfo[0];
                 const appId = appInfo[1];
-                if (!newPolicy["app-sensor"][sensor]) {
-                    newPolicy["app-sensor"][sensor] = {};
-                }
-                if (!newPolicy["app-sensor"][sensor][ip]) {
-                    newPolicy["app-sensor"][sensor][ip] = {};
-                }
                 for (const sensor of sensors) {
+                    if (!newPolicy["app-sensor"][sensor]) {
+                        newPolicy["app-sensor"][sensor] = {};
+                    }
+                    if (!newPolicy["app-sensor"][sensor][ip]) {
+                        newPolicy["app-sensor"][sensor][ip] = {};
+                    }
                     newPolicy["app-sensor"][sensor][ip][appId] = {
                         block: row[3] === "Block",
                         schedule: row[2],
@@ -121,7 +123,7 @@ function policyParser(policy, gatewayAppMap) {
 
 function findGatewayAppMapping(linkGraph) {
     gatewayAppMap = {};
-    for(const gatewayId in linkGraph.data) {
+    for (const gatewayId in linkGraph.data) {
         const ip = linkGraph.data[gatewayId].ip;
         const apps = linkGraph.data[gatewayId].apps;
         gatewayAppMap[ip] = apps;
@@ -132,12 +134,12 @@ function findGatewayAppMapping(linkGraph) {
 function storePolicyFunc() {
     let policy = [];
     function store(req, res, next) {
-        if(req.query.ip) {
+        if (req.query.ip) {
             req.query.policy = policy;
-        } else if(req.body && req.body.policy) {
+        } else if (req.body && req.body.policy) {
             policy = JSON.parse(JSON.stringify(req.body.policy));
-            for(let i = 0; i < req.body.policy.length; i++) {
-                let schedule = req.body.policy[i][2].join(' ');
+            for (let i = 0; i < req.body.policy.length; i++) {
+                let schedule = req.body.policy[i][2].join(" ");
                 schedule += " *";
                 req.body.policy[i][2] = schedule;
             }
@@ -158,32 +160,34 @@ exports.policyReceiver = async function (req, res) {
     const newPolicy = policyParser(policy, gatewayAppMap);
 
     const gatewayIps = [];
-    for(const gatewayId in linkGraph.data) {
+    for (const gatewayId in linkGraph.data) {
         gatewayIps.push(linkGraph.data[gatewayId].ip);
     }
     const requests = [];
-    for(const ip of gatewayIps) {
+    for (const ip of gatewayIps) {
         const URL = `http://${ip}:5000/platform/update-privacy-policy`;
-        requests.push(fetch(URL, {
-            body: JSON.stringify(newPolicy), // must match 'Content-Type' header
-            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-            headers: {
-                "content-type": "application/json",
-            },
-            method: "POST", // *GET, POST, PUT, DELETE, etc.
-            referrer: "no-referrer", // *client, no-referrer
-        }));
+        requests.push(
+            fetch(URL, {
+                body: JSON.stringify(newPolicy), // must match 'Content-Type' header
+                cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                headers: {
+                    "content-type": "application/json",
+                },
+                method: "POST", // *GET, POST, PUT, DELETE, etc.
+                referrer: "no-referrer", // *client, no-referrer
+            })
+        );
     }
     Promise.all(requests)
-        .then(responses => {
+        .then((responses) => {
             const result = {};
-            for(let response of responses) {
+            for (let response of responses) {
                 const responseUrl = url.parse(response.url);
                 result[responseUrl.hostname] = response.status;
             }
             res.json(result);
         })
-        .catch(err => {
-            res.json({ error: "something wrong" })
-        })
+        .catch((err) => {
+            res.json({ error: "something wrong" });
+        });
 };
