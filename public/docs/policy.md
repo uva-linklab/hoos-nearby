@@ -75,9 +75,9 @@ Every policy has four component:
 <br>
 
 ### Tips for setting up the policy
-1. When picking the time in the schedule, you are picking up a range between a start time and an end time and both time are included. For example, if you set the schedule "1-5 * * *", it will <ins>start at 1 minute and end at 6 minute</ins>
-2. When picking "*", do not pick any other options.
-3. Remember to click the "Set Policy" button after you have picked the policy
+1. When picking the time in the schedule, you are picking up a range between a start time and an end time and both time are included. For example, if you set the schedule "\* 13-17 \* \*", it will <ins>start at 13:00 and end after 17:59</ins>.
+2. When picking "\*", do not pick any other options.
+3. Remember to click the "Set Policy" button after you have picked the policy.
 <br>
 <br>
 
