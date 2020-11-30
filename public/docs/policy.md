@@ -1,13 +1,13 @@
-### How to setup the policy?
-Here is the scenarios:
+### How to setup a policy?
+Let's look at a few example scenarios and how to create equivalent policies on the gateway platform. The scenarios are:
 
-1. I want to **block** **application 1** (app1) from *sensor1* (s1) **in the morning at 6 to 7 every day**.
-2. I do not want **application 2** (app2) get **any sensor data** during the working hours (**8 am to 5 pm**).
-3. I only **allow** **sensor 2** (s2) and **sensor 3** (s3) be accessed by **any application** **in the afternoon**.
+1. I want to <ins>block</ins> <ins>application 1 (app1)</ins> from <ins>sensor1 (s1)</ins> <ins>in the morning from 6 to 7 every day</ins>.
+2. I <ins>do not want</ins> <ins>application 2 (app2)</ins> to get <ins>any sensor data</ins> during the working hours <ins>(8 am to 5 pm)</ins>.
+3. I want to <ins>allow</ins> only <ins>sensor 2 (s2)</ins> and <ins>sensor 3 (s3)</ins> to be accessed by <ins>any application</ins> <ins>in the afternoon (12 pm to 5 pm)</ins>.
 <br>
 <br>
 
-The privacy polilcy will be like this
+The privacy polilcy for these scenarios would be specified as shown below:
 <table class="table">
    <thead>
       <tr>
@@ -47,24 +47,36 @@ The privacy polilcy will be like this
 </table>
 <br>
 
-### What is the schedule?
-Schedule format (cron like)
-```
-*    *    *    *
-┬    ┬    ┬    ┬
-│    │    │    │
-│    │    │    │
-│    │    │    └───── month (1 - 12)
-│    │    └────────── day of month (1 - 31)
-│    └─────────────── hour (0 - 23)
-└──────────────────── minute (0 - 59)
-```
+Every policy has four component:
+1. Sensors:
+
+    The sensor(s) you want to set for your policy.
+2. Apps:
+
+    The app(s) you want to set for your policy.
+3. Schedule:
+
+    Cron like schedule format
+    ```
+    *    *    *    *
+    ┬    ┬    ┬    ┬
+    │    │    │    │
+    │    │    │    │
+    │    │    │    └───── month (1 - 12)
+    │    │    └────────── day of month (1 - 31)
+    │    └─────────────── hour (0 - 23)
+    └──────────────────── minute (0 - 59)
+    ```
+4. Block/Allow:
+
+    - Block: During the scheduled time, sensors will be blocked from apps.
+    - Allow: During the scheduled time, sensors will be allowed to apps.
 <br>
 
 ### Tips for setting up the policy
-1. When picking up the time, you can at most pick 2 (start and end).
-2. When picking up "*", do not pick any other options.
-3. Remember to click the "Set Policy" button after you pick the policy
+1. When picking the time in the schedule, you are picking up a range between a start time and an end time and both time are included. For example, if you set the schedule "1-5 * * *", it will <ins>start at 1 minute and end at 6 minute</ins>
+2. When picking "*", do not pick any other options.
+3. Remember to click the "Set Policy" button after you have picked the policy
 <br>
 
-### Let's set your own policy!
+### Now try setting your own policy!
