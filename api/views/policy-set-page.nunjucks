@@ -105,8 +105,13 @@
 				<div class="row">
                     <div class="col-12 text-left">
 						<div class="row">
-							<div class="col-9 text-left">
+							<div class="col-12 text-left">
 								<h3>Policy</h3>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-9 text-left">
+								<p>Please check this <a href="/policy-instruction" target="_blank">instruction</a> for how to setup a policy.</p>
 							</div>
 							<div class="col-3 text-right">
 								<button type="button" class="btn btn-secondary" onClick="addPolicyRow()">Add Policy</button>
@@ -273,7 +278,7 @@
 				})
 			})
 		});
-		$(window).on('load', function() {
+		{# $(window).on('load', function() {
 			fetch("/docs/policy.md", {
 				cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
 				headers: {
@@ -290,7 +295,7 @@
 				document.getElementById('policy-doc')
 					.innerHTML = md.render(text);
 			});
-		});
+		}); #}
 	</script>
   </body>
 </html>

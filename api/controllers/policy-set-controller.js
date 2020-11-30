@@ -2,6 +2,10 @@ const utils = require("../../utils/utils");
 const fetch = require("node-fetch");
 const url = require("url");
 
+exports.renderPolicyInstructionPage = async function (req, res) {
+    res.render("policy-instruction-page.nunjucks");
+};
+
 exports.renderPolicySetPage = async function (req, res) {
     //receive the Base64 encoded GET params from the nunjucks page
     const encodedGatewayIP = req.query.ip;
