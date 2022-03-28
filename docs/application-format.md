@@ -57,7 +57,7 @@ A fuller metadata file:
 
 ## Application formats
 
-Supported applications MUST follow the provided conventions in order to run on Nexus Edge.
+Supported applications MUST follow the application-specific format in order to run on Nexus Edge.
 
 ### Node.js
 
