@@ -10,7 +10,7 @@ The language follows RFC 2119.
 The remaining structure is determined by the application type.
 See [Application formats](Application formats) for format-specific information.
 
-## Application metadata (`_metadata.json`)
+### Application metadata (`_metadata.json`)
 
 The `_metadata.json` file contains a JSON object, the "Metadata" object.
 All required and optional metadata is contained within Metadata.
@@ -24,17 +24,15 @@ The following fields are REQUIRED to be present within Metadata.
 - The `prefers` **array** member that lists the capabilities the application can make use of on the host gateway but *can essentially function without*.
   Each capability is a **string**.
   Note that this member is REQUIRED, even if it must be empty.
-- The `devices` **array** member that lists the IDs of the devices the application will use.
 
-### Examples
+#### Examples
 
-A minimalistic metadata file:
+A minimalistic application metadata file:
 ```json
 {
   "app-type": "python",
   "requires": [],
-  "prefers": [],
-  "devices": []
+  "prefers": []
 }
 ```
 
@@ -47,26 +45,28 @@ A fuller metadata file:
   ],
   "prefers": [
     "gpu"
-  ],
-  "devices": [
-    "als-001",
-    "airq-05"
   ]
 }
 ```
 
-## Application formats
+### Application formats
 
 Supported applications MUST follow the application-specific format in order to run on Nexus Edge.
 
-### Node.js
+#### Node.js
 
 TODO
 
-### Python
+#### Python
 
 At the top level of the application package must be a
 [built distribution](https://packaging.python.org/en/latest/glossary/#term-Built-Distribution)
 in the [Wheel](https://packaging.python.org/en/latest/glossary/#term-Wheel) format.
 Follow the [official packaging documentation](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
 to generate the `.whl` file.
+
+## Deploying
+
+To deploy an application, Nexus Edge additionally requires information about the application in a JSON-compliant metadata file,
+referred to as the "deployment metadata".
+This section details the contents of the **deployment metadata** file, a JSON-compliant file.
