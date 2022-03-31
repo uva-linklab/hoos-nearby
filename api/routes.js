@@ -7,14 +7,21 @@ const gatewayScanController = require("./controllers/gateway-scan-controller");
 const appDeployController = require("./controllers/app-deploy-controller");
 const policySetController = require("./controllers/policy-set-controller");
 
-module.exports = function (app) {
+module.exports = function (app, options) {
+    // if we're running in localMode, then bypass the ble scanning on the laptop
+    if(options.localMode) {
+        app.get("/", gatewayScanController.getScanResults);
+    } else {
+        app.get('/', webpageRenderController.renderIndexPage);
+        app.get('/scan', gatewayScanController.getScanResults);
+    }
     //setup multipart form-data which allows clients to upload code and mapping files for execution
     //accepts two files. one with the form name as "code" and another called "metadata"
     const uploader = getMultipartFormDataUploader();
     const storePolicy = policySetController.storePolicy();
-    // app.get('/', webpageRenderController.renderIndexPage);
+
     app.get("/gateway", gatewayScanController.getGatewayDetails);
-    app.get("/", gatewayScanController.getScanResults);
+
     app.get("/app-deployer", appDeployController.renderAppDeployPage);
     app.post(
         "/deploy",
