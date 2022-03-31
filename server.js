@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const nunjucks = require('nunjucks');
 const argv = require('yargs')(process.argv.slice(2)).argv;
 
-// localMode: if we're running hoos-nearby on a nexusedge gateway directly rather than on an auxiliary device
+// use --localMode to run on a nexusedge gateway directly rather than on an auxiliary device
 const localMode = !!argv.local; // if undefined => false, otherwise true
 
 const app = express();
