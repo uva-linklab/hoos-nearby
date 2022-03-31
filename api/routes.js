@@ -10,7 +10,7 @@ const policySetController = require("./controllers/policy-set-controller");
 module.exports = function (app, options) {
     // if we're running in localMode, then bypass the ble scanning on the laptop
     if(options.localMode) {
-        app.get("/", gatewayScanController.getScanResults);
+        app.get("/", gatewayScanController.getBypassedScanResults);
     } else {
         app.get('/', webpageRenderController.renderIndexPage);
         app.get('/scan', gatewayScanController.getScanResults);

@@ -2,12 +2,12 @@ const GatewayScanner = require('../../gateway-scanner-lite/gateway-scanner-lite'
 const gatewayScanner = GatewayScanner.getInstance();
 const utils = require('../../utils/utils');
 
-exports.getScanResults = async function(req, res) {
-    // const neighbors = utils.getNeighborData('localhost');
-    // const gatewaysInRange = neighbors.map(neighbor => neighbor.ip);
-
-    const gatewaysInRange = [utils.getGatewayIp()];
-
+/**
+ * Given a subset of gateways of the gateway platform, this function obtains the link graph and extracts parts of it for displaying on the UI
+ * @param gatewaysInRange
+ * @return {Promise<{data}>}
+ */
+async function _getNetworkData(gatewaysInRange) {
     const gatewaysInRangeMap = {}; //gatewayId -> gatewayIP
     const allGatewaysMap = {}; //gatewayId -> gatewayIP
     const appsMap = {}; // gatewayIp -> [apps]
@@ -55,7 +55,7 @@ exports.getScanResults = async function(req, res) {
         platformLastRestartTimeStr = `${date.toDateString()}, ${date.toLocaleTimeString()}`;
     }
 
-    const data = {
+    return {
         "gatewaysInRangeMap": gatewaysInRangeMap,
         "allGatewaysMap": allGatewaysMap,
         "linkGraphUrl": linkGraphVisualUrl,
@@ -64,6 +64,33 @@ exports.getScanResults = async function(req, res) {
         "platformLastRestartTime": platformLastRestartTimeStr,
         "encodeToBase64": utils.encodeToBase64 //send the base64 encode function to nunjucks to encode GET params
     };
+}
+
+exports.getScanResults = async function (req, res) {
+    const gatewaysInRange = []; //list of ip addresses of the gateways that are in range of the auxiliary device
+
+    gatewayScanner.startScanning(5000); // scan for 5 seconds
+
+    /*
+    Whenever a new gateway is discovered in proximity by the scanner, add it to the gatewayInRange list.
+    Note: On an OSX machine, we don't get the MAC address of the peripheral from the BLE advertisement using noble.
+    Instead what we get is a temporary id from noble. Once we obtain the link graph, we will store the actual gatewayId
+    rather than this tempId.
+     */
+    gatewayScanner.on("peripheral-discovered", function (tempId, gatewayIP) {
+        gatewaysInRange.push(gatewayIP);
+    });
+
+    gatewayScanner.on("scan-complete", async () => {
+        const data = await _getNetworkData(gatewaysInRange);
+        res.render('scanned-devices.nunjucks', data);
+    });
+};
+
+// to be used only in localMode!
+exports.getBypassedScanResults = async function(req, res) {
+    const gatewaysInRange = [utils.getGatewayIp()]; // sets the gateway's IP address to be used for later data extraction
+    const data = await _getNetworkData(gatewaysInRange);
     res.render('scanned-devices.nunjucks', data);
 };
 
