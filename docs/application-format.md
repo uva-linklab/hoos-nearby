@@ -1,6 +1,7 @@
 # Application format
 
-This document describes the format for applications Nexus Edge is capable of deploying.
+This document describes the format for applications Nexus Edge is capable of deploying
+and acts as a guide for developing a properly compliant client that may deploy an application on Nexus Edge.
 The language follows RFC 2119.
 
 ## Packaging
