@@ -34,6 +34,14 @@ exports.renderAppDeployPage = async function(req, res){
     }
 };
 
+function deleteFile(filePath) {
+    try {
+        fs.unlinkSync(filePath);
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 exports.deployApp = async function (req, res) {
     //Get the POST data
     const appPath = req["files"]["app"][0]["path"]; //path to the app
@@ -46,18 +54,37 @@ exports.deployApp = async function (req, res) {
         deviceList = typeof devices === "string" ? [devices] : devices;
     }
 
+    const metadata = {
+        "devices": {
+            "ids": deviceList
+        }
+    };
+
+    // TODO can we send the metadata as json object without having to write it to file? for now, just use previous logic
+    //store the metadata to a file
+    const metadataPath = path.join(__dirname, 'metadata.json');
+    fs.writeFileSync(metadataPath, JSON.stringify(metadata));
+    // any path inside the appFiles is sent using the HTTP multipart thingy
+    const appFiles = {
+        app: appPath,
+        metadata: metadataPath
+    };
+
+    // get the randomly picked gateway ip
     const gatewayIP = req.body.gatewayIP;
-
-    //generate the link graph
-    const linkGraph = await utils.getLinkGraphData(gatewayIP);
-
-    //deploy the app
-    await appDeployerUtils.deployApp(appPath, deviceList, runtime, linkGraph, function(isSuccessful, errorMsg) {
-        const deploymentAlertMessage = isSuccessful ? "App deployed on gateway network!" : errorMsg;
-
-        const data = {
-            "deploymentAlertMessage": deploymentAlertMessage
-        };
-        res.render("deployment-response-page.nunjucks", data);
-    });
+    let deploymentAlertMessage;
+    utils.scheduleAppOnGatewayPlatform(gatewayIP, appFiles, runtime)
+        .then(() => {
+            deploymentAlertMessage = "App deployed on gateway network!";
+        })
+        .catch(() => {
+            deploymentAlertMessage = "Error Occurred!";
+        })
+        .finally(() => {
+            res.render("deployment-response-page.nunjucks", {
+                "deploymentAlertMessage": deploymentAlertMessage
+            });
+            deleteFile(appPath);
+            deleteFile(metadataPath);
+        });
 };

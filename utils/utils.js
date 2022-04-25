@@ -135,6 +135,20 @@ function executeAppOnGateway(gatewayIP, appFiles, runtime) {
 }
 
 /**
+ * * Calls the platform/execute-app API to schedule the app
+ * @param gatewayIP The ip of the gateway where the app needs to run
+ * @param appFiles Object with key-value pairs app and metadata paths
+ * @param runtime
+ * @return {*}
+ */
+function scheduleAppOnGatewayPlatform(gatewayIP, appFiles, runtime) {
+	const httpFileTransferUri = `http://${gatewayIP}:5000/platform/execute-app`;
+	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles, {
+		runtime: runtime
+	});
+}
+
+/**
  * Given a utf-8 string, encodes it to base64 and returns it
  * @param str
  * @returns {string}
@@ -164,6 +178,7 @@ module.exports = {
 	getAppsData: getAppsData,
 	getNeighborData: getNeighborData,
 	executeAppOnGateway: executeAppOnGateway,
+	scheduleAppOnGatewayPlatform: scheduleAppOnGatewayPlatform,
 	getResourceUsage: getResourceUsage,
 	encodeToBase64: encodeToBase64,
 	decodeFromBase64: decodeFromBase64
