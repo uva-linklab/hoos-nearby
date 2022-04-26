@@ -1,5 +1,6 @@
-const utils = require("../../utils/utils");
-const appDeployerUtils = require("./app-deploy-utils");
+const fs = require('fs-extra');
+const utils = require('../../utils/utils');
+const path = require('path');
 
 exports.renderAppDeployPage = async function(req, res){
     //receive the Base64 encoded GET params from the nunjucks page
@@ -81,6 +82,7 @@ exports.deployApp = async function (req, res) {
             deploymentAlertMessage = "Error Occurred!";
         })
         .finally(() => {
+            console.log(`app deployed on ${gatewayIP}`);
             res.render("deployment-response-page.nunjucks", {
                 "deploymentAlertMessage": deploymentAlertMessage
             });
