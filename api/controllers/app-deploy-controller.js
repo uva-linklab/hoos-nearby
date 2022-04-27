@@ -58,7 +58,8 @@ exports.deployApp = async function (req, res) {
     const metadata = {
         "devices": {
             "ids": deviceList
-        }
+        },
+        "runtime": runtime
     };
 
     // TODO can we send the metadata as json object without having to write it to file? for now, just use previous logic
@@ -74,7 +75,7 @@ exports.deployApp = async function (req, res) {
     // get the randomly picked gateway ip
     const gatewayIP = req.body.gatewayIP;
     let deploymentAlertMessage;
-    utils.scheduleAppOnGatewayPlatform(gatewayIP, appFiles, runtime)
+    utils.scheduleAppOnGatewayPlatform(gatewayIP, appFiles)
         .then(() => {
             deploymentAlertMessage = "App deployed on gateway network!";
         })

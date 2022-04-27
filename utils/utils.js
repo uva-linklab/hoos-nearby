@@ -135,16 +135,14 @@ function executeAppOnGateway(gatewayIP, appFiles, runtime) {
 }
 
 /**
- * * Calls the platform/execute-app API to schedule the app
+ * * Calls the platform/schedule-app API to schedule the app
  * @param gatewayIP The ip of the gateway where the app needs to run
  * @param appFiles Object with key-value pairs app and metadata paths
- * @param runtime
  * @return {*}
  */
-function scheduleAppOnGatewayPlatform(gatewayIP, appFiles, runtime) {
-	const httpFileTransferUri = `http://${gatewayIP}:5000/platform/execute-app`;
+function scheduleAppOnGatewayPlatform(gatewayIP, appFiles) {
+	const httpFileTransferUri = `http://${gatewayIP}:5000/platform/schedule-app`;
 	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles, {
-		runtime: runtime
 	});
 }
 
