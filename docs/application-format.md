@@ -54,9 +54,9 @@ A fuller metadata file:
 
 Supported applications MUST follow the application-specific format in order to run on Nexus Edge.
 
-#### Node.js
+#### Node.
 
-TODO
+At the top level of the application package must be an `app.js` file that is the entry point to the application.
 
 #### Python
 
