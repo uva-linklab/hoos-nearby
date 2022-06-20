@@ -38,7 +38,6 @@ exports.deployApp = async function (req, res) {
     //Get the POST data
     const appPath = req["files"]["app"][0]["path"]; //path to the app
     const devices = req.body.devices; //list of deviceIds
-    const runtime = req.body.runtime;
 
     let deviceList = [];
     if(devices) {

@@ -22,7 +22,7 @@
 	       border: 3px solid yellow;
 		}
 		.my-col {
-			border: 3px dotted blue; 
+			border: 3px dotted blue;
 		}
     </style>
 
@@ -31,13 +31,6 @@
 			// check if an app is selected
 			if( document.getElementById("appPicker").files.length === 0 ){
 				alert('Please select an app to deploy.');
-				return false;
-			}
-
-			// check if the runtime is selected
-			const selector = document.querySelector('input[name="runtime"]:checked');
-			if(!selector) {
-				alert('Please select a runtime for your app.');
 				return false;
 			}
 
@@ -62,14 +55,6 @@
 						<h3>App:</h3>
 						<input id="appPicker" type="file" name="app" accept=".js,.py">
 					</div>
-                    <div class="col-6 text-left">
-                        <h3>Runtime:</h3>
-						<input type="radio" name="runtime" value="python">
-						<label for="python">Python v3.7.3</label><br>
-						<input type="radio" name="runtime" value="nodejs">
-						<label for="nodejs">Node.js v12.16</label><br>
-
-                    </div>
 				</div>
 
 				<div class="row mt-5"></div>
