@@ -121,17 +121,16 @@ async function getResourceUsage(gatewayIp) {
 }
 
 /**
- * * Calls the execute-app API to run an app on a specified gateway
+ * Sends an application to run on Nexus Edge.
+ *
  * @param gatewayIP The ip of the gateway where the app needs to run
  * @param appFiles Object with key-value pairs app and metadata paths
- * @param runtime
  * @return {*}
  */
-function executeAppOnGateway(gatewayIP, appFiles, runtime) {
+function sendApplication(gatewayIP, appFiles) {
 	const httpFileTransferUri = `http://${gatewayIP}:5000/gateway/execute-app`;
-	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles, {
-		runtime: runtime
-	});
+    console.log(`Sending application to ${gatewayIP}.`);
+	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles);
 }
 
 /**
@@ -163,7 +162,7 @@ module.exports = {
 	getDeviceData: getDeviceData,
 	getAppsData: getAppsData,
 	getNeighborData: getNeighborData,
-	executeAppOnGateway: executeAppOnGateway,
+	sendApplication: sendApplication,
 	getResourceUsage: getResourceUsage,
 	encodeToBase64: encodeToBase64,
 	decodeFromBase64: decodeFromBase64

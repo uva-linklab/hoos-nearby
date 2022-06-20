@@ -4,7 +4,9 @@ const nunjucks = require('nunjucks');
 const argv = require('yargs')(process.argv.slice(2)).argv;
 
 // use --localMode to run on a nexusedge gateway directly rather than on an auxiliary device
-const localMode = !!argv.local; // if undefined => false, otherwise true
+// const localMode = !!argv.local; // if undefined => false, otherwise true
+const localMode = true;
+console.log(`Local mode: ${localMode}`);
 
 const app = express();
 const port = (process.env.PORT || 4000);

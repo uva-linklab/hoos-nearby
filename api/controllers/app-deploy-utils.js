@@ -11,7 +11,7 @@ class Gateway {
     }
 
     toString() {
-        return `Gateway @ ${this.ip}, [MemFreeMB: ${this.memoryFreeMB}, CPUFreePercent: ${this.cpuFreePercent}, 
+        return `Gateway @ ${this.ip}, [MemFreeMB: ${this.memoryFreeMB}, CPUFreePercent: ${this.cpuFreePercent},
             numDevicesSupported: ${this.numDevicesSupported}]`;
     }
 }
@@ -81,62 +81,33 @@ function deleteFile(filePath) {
     }
 }
 
-/**
- * This function picks the best gateway to run the app and uses the API on that gateway to execute the app.
+/** Sends the app package to the Nexus Edge gateway platform.
  * @param appPath Path to the app
  * @param devices List of device ids
- * @param runtime runtime to use for the app
- * @param linkGraph
+ * @param gatewayIp IP address of a gateway.
  * @param callback Indicates whether the app deployment was successful or not using a boolean argument
  */
-exports.deployApp = async function(appPath, devices, runtime, linkGraph, callback) {
-    // for each gateway in the link graph, obtain the resource usage
-    const gatewayIpAddresses = Object.values(linkGraph.data).map(value => value.ip);
+exports.deployApp = async function(appPath, devices, gatewayIp, callback) {
+    // Generate the deployment metadata.
+    const metadata = {
+        devices: {
+            ids: devices,
+            types: []
+        }
+    };
+    const metadataPath = path.join(__dirname, 'deployMetadata.json');
+    fs.writeFileSync(metadataPath, JSON.stringify(metadata));
 
-    const promises = gatewayIpAddresses.map(ip => utils.getResourceUsage(ip));
-    const resourceUsages = await Promise.all(promises);
+    const paths = {
+        deployMetadata: metadataPath,
+        appPackage: appPath
+    };
 
-    const gatewayToDeviceMapping = await getHostGateways(devices, linkGraph);
-
-    const availableGateways = [];
-    gatewayIpAddresses.forEach((gatewayIp, index) => {
-        const gateway = new Gateway(gatewayIp,
-            resourceUsages[index]['memoryFreeMB'],
-            resourceUsages[index]['cpuFreePercent'],
-            gatewayToDeviceMapping.hasOwnProperty(gatewayIp) ?
-                gatewayToDeviceMapping[gatewayIp].length : 0);
-
-        availableGateways.push(gateway);
-    });
-
-    // filter out gateways which do not have enough resources to run the application
-    const candidateGateways = availableGateways.filter(gateway => gateway.cpuFreePercent >= CPU_FREE_PERCENT_THRESHOLD &&
-        gateway.memoryFreeMB >= MEM_FREE_MB_THRESHOLD);
-
-    if(candidateGateways.length === 0) {
-        callback(false, 'Gateway devices are low on resources. Could not deploy application.');
-        deleteFile(appPath);
-    } else {
-        // find the best gateway by comparing amongst each other
-        const idealGateway = candidateGateways.reduce(compareGateways);
-
-        //store the metadata to a file
-        const metadata = {"deviceMapping": gatewayToDeviceMapping};
-        const metadataPath = path.join(__dirname, 'metadata.json');
-        fs.writeFileSync(metadataPath, JSON.stringify(metadata));
-
-        //deploy the code using the Gateway API on the target gateway
-        const appFiles = {
-            app: appPath,
-            metadata: metadataPath
-        };
-
-        utils.executeAppOnGateway(idealGateway.ip, appFiles, runtime)
-            .then(() => callback(true, ''))
-            .catch(() => callback(false, `App deployment attempt on ${idealGateway.ip} failed. Please try again.`))
+    utils.sendApplication(gatewayIp, paths)
+        .then(() => callback(true, ''))
+        .catch(() => callback(false, `App deployment attempt on failed. Please try again.`))
             .finally(() => {
                 deleteFile(appPath);
                 deleteFile(metadataPath);
             });
-    }
-};
+}
