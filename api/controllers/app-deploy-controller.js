@@ -19,7 +19,7 @@ exports.renderAppDeployPage = async function(req, res){
         // allDeviceIds still contains duplicate deviceIds, since two gateways can have the same deviceId
         // remove duplicates by creating a set and then converting back to a list
         const deviceList = Array.from(new Set(allDeviceIds));
-
+        deviceList.sort(); // sort to make it better formatted in the UI
         const data = {
             /*
             pass on the gateway IP so that once the form submission happens on the app-deploy-page, the deployApp
@@ -37,18 +37,22 @@ exports.renderAppDeployPage = async function(req, res){
 exports.deployApp = async function (req, res) {
     //Get the POST data
     const appPath = req["files"]["app"][0]["path"]; //path to the app
-    let devices = req.body.devices; //list of deviceIds
-    // check `devices` type. if only 1 device is selected, req.body.devices will be a string. Otherwise, it will be an array.
-    if(typeof devices === "string") {
-        devices = [devices];
+    const devices = req.body.devices; //list of deviceIds
+    const runtime = req.body.runtime;
+
+    let deviceList = [];
+    if(devices) {
+        // check `devices` type. if only 1 device is selected, req.body.devices will be a string. Otherwise, it will be an array.
+        deviceList = typeof devices === "string" ? [devices] : devices;
     }
+
     const gatewayIP = req.body.gatewayIP;
 
     //generate the link graph
     const linkGraph = await utils.getLinkGraphData(gatewayIP);
 
     //deploy the app
-    await appDeployerUtils.deployApp(appPath, devices, linkGraph, function(isSuccessful, errorMsg) {
+    await appDeployerUtils.deployApp(appPath, deviceList, runtime, linkGraph, function(isSuccessful, errorMsg) {
         const deploymentAlertMessage = isSuccessful ? "App deployed on gateway network!" : errorMsg;
 
         const data = {

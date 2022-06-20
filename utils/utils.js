@@ -3,6 +3,26 @@ const config = require('./config.json');
 const httpFileTransfer = require("./http-file-transfer");
 const crypto = require('crypto');
 const Address4 = require('ip-address').Address4;
+const os = require('os');
+
+/**
+ * Returns the ip address of the network interface defined in config.network.interface
+ * @return {string}
+ */
+function getGatewayIp() {
+	const interfaceInConfig = getConfig('network')['interface'];
+	const systemInterfaces = os.networkInterfaces();
+	if(systemInterfaces.hasOwnProperty(interfaceInConfig)) {
+		const sysInterface = systemInterfaces[interfaceInConfig].find(elem => elem.family === 'IPv4');
+		if(sysInterface) {
+			return sysInterface.address;
+		} else {
+			throw new Error(`no IPv4 address found for ${interfaceInConfig} interface defined in utils/config.json`);
+		}
+	} else {
+		throw new Error(`interface ${interfaceInConfig} defined in utils/config.json is not valid`);
+	}
+}
 
 function getConfig(key) {
 	const value = config[key];
@@ -39,6 +59,16 @@ function decryptAES(encrypted, password, iv) {
 
 function getLinkGraphVisualUrl(gatewayIp) {
 	return `http://${gatewayIp}:5000/platform/link-graph-visual`;
+}
+
+/**
+ * Use the Gateway API to get the link graph data
+ * @returns {Promise<json>} promise of the link graph json
+ */
+async function getGatewayStartTime(gatewayIp) {
+	const execUrl = `http://${gatewayIp}:5000/gateway/start-time`;
+	const body = await request({method: 'GET', uri: execUrl});
+	return JSON.parse(body);
 }
 
 /**
@@ -94,11 +124,14 @@ async function getResourceUsage(gatewayIp) {
  * * Calls the execute-app API to run an app on a specified gateway
  * @param gatewayIP The ip of the gateway where the app needs to run
  * @param appFiles Object with key-value pairs app and metadata paths
+ * @param runtime
  * @return {*}
  */
-function executeAppOnGateway(gatewayIP, appFiles) {
+function executeAppOnGateway(gatewayIP, appFiles, runtime) {
 	const httpFileTransferUri = `http://${gatewayIP}:5000/gateway/execute-app`;
-	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles);
+	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles, {
+		runtime: runtime
+	});
 }
 
 /**
@@ -122,8 +155,10 @@ function decodeFromBase64(encodedStr) {
 }
 
 module.exports = {
+	getGatewayIp: getGatewayIp,
 	getGatewayDetails: getGatewayDetails,
 	getLinkGraphVisualUrl: getLinkGraphVisualUrl,
+	getGatewayStartTime: getGatewayStartTime,
 	getLinkGraphData: getLinkGraphData,
 	getDeviceData: getDeviceData,
 	getAppsData: getAppsData,
