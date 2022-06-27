@@ -128,7 +128,7 @@ async function getResourceUsage(gatewayIp) {
  * @return {*}
  */
 function sendApplication(gatewayIP, appFiles) {
-	const httpFileTransferUri = `http://${gatewayIP}:5000/gateway/execute-app`;
+	const httpFileTransferUri = `http://${gatewayIP}:5000/gateway/-app`;
     console.log(`Sending application to ${gatewayIP}.`);
 	return httpFileTransfer.transferFiles(httpFileTransferUri, appFiles);
 }
